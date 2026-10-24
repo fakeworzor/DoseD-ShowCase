@@ -1,0 +1,35 @@
+{% extends "patient/base.html" %}
+{% from "patient/_steps.html" import header %}
+{% block content %}{% set t = T() %}
+{{ header(p.id, "bp", "/p/" ~ p.id ~ ("/bp/today" if d.edit else "/bp")) }}
+<h1 class="p-title">{{ t.confirm_title }}</h1>
+{% if d.method == "photo" %}<p class="p-sub">{{ t.confirm_from_photo }}</p>{% endif %}
+{% if problem %}<div class="alert{% if problem.level == 'block' %} red{% endif %}" role="alert">{{ problem.text }}</div>{% endif %}
+<div class="readback">
+  <div><span>{{ t.type_top }}</span><span class="num">{{ d.sys }}</span></div>
+  <div><span>{{ t.type_bottom }}</span><span class="num">{{ d.dia }}</span></div>
+  <div><span>{{ t.type_pulse }}</span><span class="num">{{ d.pulse }}</span></div>
+</div>
+
+{% if problem and problem.level == "block" %}
+  <a class="btn-big primary" href="/p/{{ p.id }}/bp/type">{{ t.confirm_fix }}</a>
+  <a class="btn-big" href="/p/{{ p.id }}/bp">{{ t.confirm_no }}</a>
+{% else %}
+<form method="post" action="/p/{{ p.id }}/bp/confirm" class="confirm-form">
+  <label class="tick"><input type="checkbox" name="ihb" value="1" {% if d.ihb %}checked{% endif %}>
+    <span><b>{{ t.ihb_label }}</b><small>{{ t.ihb_hint }}</small></span></label>
+  {% if problem %}
+    <input type="hidden" name="force" value="1">
+    <a class="btn-big primary" href="/p/{{ p.id }}/bp">{{ t.confirm_no }}</a>
+    <button class="btn-big" type="submit">{{ t.confirm_send_anyway }}</button>
+    <a class="btn-big" href="/p/{{ p.id }}/bp/type">{{ t.confirm_fix }}</a>
+  {% else %}
+    <div class="two dock">
+      <a class="btn-big" href="/p/{{ p.id }}/bp">{{ t.confirm_no }}</a>
+      <button class="btn-big primary" type="submit">{{ t.confirm_yes }}</button>
+    </div>
+    <a class="btn-big" href="/p/{{ p.id }}/bp/type">{{ t.confirm_type_instead if d.method == "photo" else t.confirm_fix }}</a>
+  {% endif %}
+</form>
+{% endif %}
+{% endblock %}

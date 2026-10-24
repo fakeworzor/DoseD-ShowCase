@@ -1,0 +1,66 @@
+# SYNTHETIC past titration steps, used by "What happened to similar patients".
+# Replace with the hospital's own de-identified history before any real use.
+# outcome: ok | lost (no follow-up lab) | hold | hyperkalaemia | aki | hypotension | fall
+# k_after = K+ at the follow-up lab (null if lost). note = what the patient or caregiver said before the step.
+
+# Spironolactone 12.5 -> 25 mg
+- {id: E001, drug: spironolactone, from: 12.5, to: 25, egfr: 74, k_before: 4.6, k_after: 4.9, outcome: ok, note: "สบายดี ไม่เหนื่อย"}
+- {id: E002, drug: spironolactone, from: 12.5, to: 25, egfr: 69, k_before: 4.5, k_after: 4.8, outcome: ok, note: "เดินได้ไกลขึ้น ไม่มีอาการ"}
+- {id: E003, drug: spironolactone, from: 12.5, to: 25, egfr: 81, k_before: 4.4, k_after: 4.6, outcome: ok, note: "ปกติดี"}
+- {id: E004, drug: spironolactone, from: 12.5, to: 25, egfr: 63, k_before: 4.9, k_after: 5.8, outcome: hyperkalaemia, note: "กินผลไม้เยอะช่วงนี้ ทุเรียนกับกล้วย"}
+- {id: E005, drug: spironolactone, from: 12.5, to: 25, egfr: 77, k_before: 4.7, k_after: 5.0, outcome: ok, note: "สบายดีครับ"}
+- {id: E006, drug: spironolactone, from: 12.5, to: 25, egfr: 72, k_before: 4.6, k_after: 4.9, outcome: ok, note: "เหนื่อยน้อยลง นอนหลับได้"}
+- {id: E007, drug: spironolactone, from: 12.5, to: 25, egfr: 66, k_before: 4.8, k_after: 5.1, outcome: ok, note: "ไม่มีอะไรผิดปกติ"}
+- {id: E008, drug: spironolactone, from: 12.5, to: 25, egfr: 70, k_before: 4.7, k_after: null, outcome: lost, note: "สบายดี"}
+- {id: E009, drug: spironolactone, from: 12.5, to: 25, egfr: 84, k_before: 4.5, k_after: 4.7, outcome: ok, note: "เดินออกกำลังได้ทุกวัน"}
+- {id: E010, drug: spironolactone, from: 12.5, to: 25, egfr: 61, k_before: 4.8, k_after: 5.3, outcome: hold, note: "ท้องเสีย 2 วัน กินได้น้อย"}
+- {id: E011, drug: spironolactone, from: 12.5, to: 25, egfr: 75, k_before: 4.4, k_after: 4.4, outcome: ok, note: "ปกติดี ไม่เหนื่อย"}
+- {id: E012, drug: spironolactone, from: 12.5, to: 25, egfr: 68, k_before: 4.6, k_after: 4.8, outcome: ok, note: "สบายดี เดินได้"}
+- {id: E013, drug: spironolactone, from: 12.5, to: 25, egfr: 79, k_before: 4.5, k_after: 4.9, outcome: ok, note: "ไม่มีอาการ"}
+- {id: E014, drug: spironolactone, from: 12.5, to: 25, egfr: 65, k_before: 4.7, k_after: 5.0, outcome: ok, note: "เหนื่อยน้อยลงกว่าเดิม"}
+- {id: E015, drug: spironolactone, from: 12.5, to: 25, egfr: 71, k_before: 4.9, k_after: 5.2, outcome: ok, note: "ปกติ"}
+- {id: E016, drug: spironolactone, from: 12.5, to: 25, egfr: 60, k_before: 4.8, k_after: 5.5, outcome: aki, note: "อาเจียน ดื่มน้ำได้น้อย"}
+- {id: E017, drug: spironolactone, from: 12.5, to: 25, egfr: 76, k_before: 4.6, k_after: 4.8, outcome: ok, note: "สบายดี ไม่เหนื่อย เดินได้"}
+- {id: E018, drug: spironolactone, from: 12.5, to: 25, egfr: 82, k_before: 4.4, k_after: 4.6, outcome: ok, note: "ไปตลาดได้เอง"}
+- {id: E019, drug: spironolactone, from: 12.5, to: 25, egfr: 67, k_before: 4.7, k_after: 4.9, outcome: ok, note: "ดีขึ้น"}
+- {id: E020, drug: spironolactone, from: 12.5, to: 25, egfr: 73, k_before: 4.5, k_after: 4.8, outcome: ok, note: "นอนราบได้แล้ว ไม่ต้องหนุนหมอนสูง"}
+- {id: E021, drug: spironolactone, from: 12.5, to: 25, egfr: 64, k_before: 4.8, k_after: 5.0, outcome: ok, note: "ปกติดีค่ะ"}
+- {id: E022, drug: spironolactone, from: 12.5, to: 25, egfr: 78, k_before: 4.6, k_after: null, outcome: lost, note: "สบายดี"}
+- {id: E023, drug: spironolactone, from: 12.5, to: 25, egfr: 70, k_before: 4.7, k_after: 5.1, outcome: ok, note: "เดินได้ไกลขึ้น เหนื่อยน้อยลง"}
+- {id: E024, drug: spironolactone, from: 12.5, to: 25, egfr: 85, k_before: 4.4, k_after: 4.5, outcome: ok, note: "ไม่มีอาการ"}
+- {id: E025, drug: spironolactone, from: 12.5, to: 25, egfr: 62, k_before: 4.9, k_after: 5.2, outcome: ok, note: "สบายดี"}
+- {id: E026, drug: spironolactone, from: 12.5, to: 25, egfr: 74, k_before: 4.5, k_after: 4.7, outcome: ok, note: "ปกติดี"}
+- {id: E027, drug: spironolactone, from: 12.5, to: 25, egfr: 69, k_before: 4.6, k_after: 4.9, outcome: ok, note: "ทำงานบ้านได้"}
+- {id: E028, drug: spironolactone, from: 12.5, to: 25, egfr: 80, k_before: 4.5, k_after: 4.8, outcome: ok, note: "สบายดี ไม่เหนื่อย"}
+- {id: E029, drug: spironolactone, from: 12.5, to: 25, egfr: 66, k_before: 4.7, k_after: 5.0, outcome: ok, note: "ไม่มีอาการผิดปกติ"}
+- {id: E030, drug: spironolactone, from: 12.5, to: 25, egfr: 71, k_before: 4.8, k_after: 5.1, outcome: ok, note: "ดีขึ้นกว่าเดิม"}
+- {id: E031, drug: spironolactone, from: 12.5, to: 25, egfr: 77, k_before: 4.6, k_after: 4.9, outcome: ok, note: "เดินได้"}
+- {id: E032, drug: spironolactone, from: 12.5, to: 25, egfr: 63, k_before: 4.7, k_after: 5.0, outcome: ok, note: "สบายดีค่ะ"}
+- {id: E033, drug: spironolactone, from: 12.5, to: 25, egfr: 75, k_before: 4.4, k_after: 4.7, outcome: ok, note: "ไม่เหนื่อย"}
+- {id: E034, drug: spironolactone, from: 12.5, to: 25, egfr: 68, k_before: 4.6, k_after: 4.9, outcome: ok, note: "ปกติ ไม่มีอะไร"}
+# outside the match bands (shown as filtered out)
+- {id: E035, drug: spironolactone, from: 12.5, to: 25, egfr: 38, k_before: 4.9, k_after: 5.6, outcome: hyperkalaemia, note: "ปัสสาวะน้อยลง"}
+- {id: E036, drug: spironolactone, from: 12.5, to: 25, egfr: 95, k_before: 3.9, k_after: 4.1, outcome: ok, note: "สบายดี"}
+- {id: E037, drug: spironolactone, from: 25, to: 50, egfr: 72, k_before: 4.6, k_after: 5.0, outcome: ok, note: "ปกติดี"}
+
+# Enalapril 5 -> 10 mg twice daily
+- {id: E101, drug: enalapril, from: 5, to: 10, egfr: 70, k_before: 4.2, k_after: 4.4, outcome: ok, note: "สบายดี"}
+- {id: E102, drug: enalapril, from: 5, to: 10, egfr: 66, k_before: 4.3, k_after: 4.5, outcome: fall, note: "หน้ามืดตอนลุกจากเตียงตอนเช้า"}
+- {id: E103, drug: enalapril, from: 5, to: 10, egfr: 74, k_before: 4.1, k_after: 4.3, outcome: ok, note: "ไม่มีอาการ"}
+- {id: E104, drug: enalapril, from: 5, to: 10, egfr: 61, k_before: 4.4, k_after: 4.6, outcome: hypotension, note: "ลุกจากเตียงแล้วเวียนหัว ต้องนั่งพักก่อน"}
+- {id: E105, drug: enalapril, from: 5, to: 10, egfr: 78, k_before: 4.2, k_after: 4.3, outcome: ok, note: "เดินได้ไกลขึ้น"}
+- {id: E106, drug: enalapril, from: 5, to: 10, egfr: 69, k_before: 4.5, k_after: 4.7, outcome: ok, note: "ปกติดีค่ะ"}
+- {id: E107, drug: enalapril, from: 5, to: 10, egfr: 58, k_before: 4.3, k_after: 4.6, outcome: hypotension, note: "เวียนหัวตอนลุกขึ้นยืน"}
+- {id: E108, drug: enalapril, from: 5, to: 10, egfr: 72, k_before: 4.0, k_after: 4.2, outcome: ok, note: "เหนื่อยน้อยลง"}
+- {id: E109, drug: enalapril, from: 5, to: 10, egfr: 65, k_before: 4.4, k_after: 4.5, outcome: ok, note: "สบายดี ไม่เหนื่อย"}
+- {id: E110, drug: enalapril, from: 5, to: 10, egfr: 76, k_before: 4.2, k_after: 4.4, outcome: ok, note: "ไม่มีอาการผิดปกติ"}
+- {id: E111, drug: enalapril, from: 5, to: 10, egfr: 63, k_before: 4.3, k_after: null, outcome: lost, note: "ปกติดี"}
+- {id: E112, drug: enalapril, from: 5, to: 10, egfr: 70, k_before: 4.1, k_after: 4.3, outcome: fall, note: "มึนหัวเวลาลุกเร็วๆ ตอนเช้า"}
+- {id: E113, drug: enalapril, from: 5, to: 10, egfr: 67, k_before: 4.4, k_after: 4.5, outcome: ok, note: "ทำงานบ้านได้ปกติ"}
+- {id: E114, drug: enalapril, from: 5, to: 10, egfr: 73, k_before: 4.2, k_after: 4.3, outcome: ok, note: "ดีขึ้น"}
+
+# Bisoprolol 5 -> 7.5 mg (deliberately few: shows "not enough similar patients")
+- {id: E201, drug: bisoprolol, from: 5, to: 7.5, egfr: 82, k_before: 4.3, k_after: 4.3, outcome: ok, note: "ปกติ"}
+- {id: E202, drug: bisoprolol, from: 5, to: 7.5, egfr: 88, k_before: 4.2, k_after: 4.2, outcome: ok, note: "เหนื่อยน้อยลง"}
+- {id: E203, drug: bisoprolol, from: 5, to: 7.5, egfr: 79, k_before: 4.4, k_after: 4.4, outcome: ok, note: "สบายดี"}
+- {id: E204, drug: bisoprolol, from: 5, to: 7.5, egfr: 90, k_before: 4.1, k_after: 4.2, outcome: ok, note: "ไม่มีอาการ"}

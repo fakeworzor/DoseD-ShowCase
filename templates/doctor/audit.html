@@ -1,0 +1,20 @@
+{% extends "doctor/base.html" %}
+{% block title %}{{ _("Audit log") }}{% endblock %}
+{% block content %}
+<div>
+  <h1 class="page-title">{{ _("Audit log") }}</h1>
+  <p class="page-sub">{{ _("Every reading, check-in, escalation, decision and notification, newest first.") }}</p>
+</div>
+<div class="table-wrap">
+  <table class="list">
+    <thead><tr><th>{{ _("Time") }}</th><th>{{ _("Who") }}</th><th>{{ _("Action") }}</th><th>{{ _("Patient") }}</th><th>{{ _("Detail") }}</th></tr></thead>
+    <tbody>
+    {% for a in audit %}
+      <tr><td class="num" data-label="{{ _('Time') }}">{{ a.at[:16] }}</td><td data-label="{{ _('Who') }}">{{ a.actor }}</td><td data-label="{{ _('Action') }}">{{ a.action }}</td><td data-label="{{ _('Patient') }}">{% if a.patient %}<a href="/d/patient/{{ a.patient }}">HN {{ a.patient }}</a>{% endif %}</td><td data-label="{{ _('Detail') }}">{{ a.detail }}</td></tr>
+    {% else %}
+      <tr><td colspan="5" class="empty">{{ _("Nothing logged yet. Use the patient app or decide on a card.") }}</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

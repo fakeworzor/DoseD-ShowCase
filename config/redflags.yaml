@@ -1,0 +1,41 @@
+# Keyword safety net. Always runs, with or without the AI.
+# Red flag = the patient is escalated at once and no dose step is suggested.
+# Add phrases here as you collect real patient wording.
+
+red_flag:
+  - นอนราบไม่ได้
+  - หายใจไม่อิ่ม
+  - หายใจไม่ออก
+  - เหนื่อยหอบ
+  - หอบเหนื่อย
+  - เจ็บหน้าอก
+  - แน่นหน้าอก
+  - หมดสติ
+  - เป็นลม
+  - ชัก
+  - can't lie flat
+  - chest pain
+  - fainted
+
+dizzy:
+  - เวียนหัว
+  - เวียนศีรษะ
+  - หน้ามืด
+  - มึนหัว
+  - บ้านหมุน
+  - dizzy
+
+nsaid:
+  - ไอบูโพรเฟน
+  - ibuprofen
+  - นาพรอกเซน
+  - naproxen
+  - ไดโคลฟีแนค
+  - diclofenac
+  - เซเลค็อกซิบ
+  - celecoxib
+  - ยาแก้ปวดข้อ
+  - ยาแก้อักเสบ
+
+# AI-extracted fields that also count as red flags when the answer is "yes".
+red_flag_fields: [orthopnea, chest_pain, fainting]

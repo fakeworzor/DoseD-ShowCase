@@ -1,0 +1,20 @@
+{# Today's-steps pieces shared by home and the step pages. Steps come from service.today_steps(). #}
+{% from "icons.html" import icon %}
+{% macro bar(st) -%}
+<div class="progress" style="--steps: {{ st|length }}" aria-hidden="true">{% for s in st %}<span class="{{ s.state }}"></span>{% endfor %}</div>
+{%- endmacro %}
+
+{# Top of every step page, kept to one short row + bar so the page's main button stays on screen:
+   back link on the left, "ขั้นที่ 1 จาก 2" on the right. `back` is where this page goes back to; when that is
+   home and this is step 2 or later, the link goes to the step before instead (to see or fix what was sent). #}
+{% macro header(pid, key, back) -%}
+{% set st = steps(pid) %}{% set cur = st|selectattr("key", "equalto", key)|first %}
+{% if cur and cur.n > 1 and back == "/p/" ~ pid %}{% set prev = st[cur.n - 2] %}
+  {% set href, label = (prev.review if prev.done else prev.href), T().step_back_short.format(i=prev.n) %}
+{% else %}{% set href, label = back, T().back %}{% endif %}
+<div class="step-head">
+  <div class="step-top"><a class="back" href="{{ href }}">{{ icon("back") }} {{ label }}</a>
+    {% if cur %}<span class="step-label">{{ T().step_label.format(i=cur.n, n=st|length) }}</span>{% endif %}</div>
+  {% if cur %}{{ bar(st) }}{% endif %}
+</div>
+{%- endmacro %}

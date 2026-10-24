@@ -1,0 +1,11 @@
+# Guideline passages shown as citations on the doctor card, keyed by rule id.
+# PLACEHOLDER summaries: replace with exact passages from the guideline your cardiologist uses,
+# and check the licence before showing them publicly.
+
+MRA-STEP: {source: "ESC 2021 heart failure guideline", text: "Spironolactone: starting dose 25 mg once daily, target 50 mg once daily. Check potassium and kidney function after starting or increasing. [Replace with the exact passage]"}
+ACEI-STEP: {source: "ESC 2021 heart failure guideline", text: "Enalapril: starting dose 2.5 mg twice daily, target 10 to 20 mg twice daily. [Replace with the exact passage]"}
+ARNI-STEP: {source: "ESC 2021 heart failure guideline", text: "Sacubitril/valsartan: target 97/103 mg twice daily. [Replace with the exact passage]"}
+BB-STEP: {source: "ESC 2021 heart failure guideline", text: "Bisoprolol: starting dose 1.25 mg once daily, target 10 mg once daily. [Replace with the exact passage]"}
+ARNI-SWITCH: {source: "ESC 2021 heart failure guideline", text: "Sacubitril/valsartan is recommended as a replacement for an ACE inhibitor in patients with HFrEF. Stop the ACE inhibitor at least 36 hours before starting. [Replace with the exact passage]"}
+ADD-SGLT2I: {source: "ESC 2021 heart failure guideline", text: "Dapagliflozin or empagliflozin are recommended for patients with HFrEF. [Replace with the exact passage]"}
+ADD-MRA: {source: "ESC 2021 heart failure guideline", text: "An MRA is recommended for patients with HFrEF. [Replace with the exact passage]"}

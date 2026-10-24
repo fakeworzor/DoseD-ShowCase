@@ -1,0 +1,71 @@
+# App settings. Secrets (API keys, passwords) go in .env, never here.
+
+app:
+  name: Dose-D                         # product name shown in both apps
+  hospital: "[ชื่อโรงพยาบาล]"          # shown on patient screens
+  clinic: Heart failure clinic
+  demo_today: "2026-10-17"             # the app's "today", so synthetic dates stay consistent. Set to null for the real date.
+  demo_patient: "0012"                 # patient opened by "Open patient app"
+  nurse_name: "พยาบาลมานี"
+  nurse_hours: "08.00–20.00 น."
+  nurse_phone: ""                      # e.g. "021234567"; empty = button shows hours only
+  emergency_number: "1669"
+  doctor_name: "Dr. [Name]"            # shown as the signer in the demo (real use: hospital login)
+
+plausible:                             # outside these the patient is asked to re-check; they can still send it (marked for the doctor)
+  sys: [70, 250]
+  dia: [40, 150]
+  pulse: [35, 180]
+  max_jump_sys: 40                     # vs the patient's own 7-day average
+
+uploads:                               # photos / videos a patient attaches to a check-in (and BP photos)
+  dir: data/uploads                    # kept out of git; one folder per patient
+  max_mb: 20                           # per file
+  max_files: 3
+
+store:
+  backend: local                       # local | iris  (iris = similar-patient search runs in InterSystems IRIS)
+  state_file: data/state.json          # created from data/seed on first run; delete it (or use Reset demo) to start over
+
+iris:                                  # used when store.backend = iris. Values match the InterSystems FHIR/AI kit container.
+  host: localhost
+  port: 1972
+  namespace: FHIRSERVER
+  fhir_base: http://localhost:52773/fhir/r4
+  write_fhir: true                     # on approval, also POST a FHIR MedicationRequest
+  # username / password come from .env (IRIS_USER, IRIS_PASSWORD)
+
+doctor:
+  flowsheet_visits: 4                  # past reviews shown as columns on the patient card
+  reasons:                             # choices on the patient card; "Other" asks for a note
+    not_now: ["See the patient in clinic first", "Wait for the next lab result", "Patient prefers to wait", "Other"]
+    override: ["Benefit outweighs the risk", "Discussed with the patient", "The reading or message was wrong", "Other"]
+    change: ["Smaller step", "Larger step", "Lower the dose (side effects)", "Patient preference", "Other"]
+
+llm:
+  mode: auto                           # auto = use Claude when ANTHROPIC_API_KEY is set, else keyword fallback | live | off
+  model: claude-opus-5-5
+  photo_reader: gemini                 # who reads BP photos: gemini (GEMINI_API_KEY) or claude (ANTHROPIC_API_KEY)
+  gemini_model: gemini-2.5-flash       # any Gemini model that accepts images
+  effort: low                          # low | medium | high
+  max_tokens: 4000
+  fallbacks: true                      # server-side refusal fallback ("default" mode)
+  timeout_seconds: 60
+
+embedding:
+  provider: char-ngram                 # char-ngram works offline for Thai. Swap for a model later (see app/similar.py).
+  dims: 256
+  ngram_min: 2
+  ngram_max: 3
+
+similar:                               # "What happened to similar patients"
+  egfr_band: 15                        # match eGFR within ± this
+  k_band: 0.3                          # match K+ within ± this
+  min_cases: 10                        # fewer matched cases -> "not enough similar patients", no numbers
+  top_k: 3                             # closest notes shown to the doctor
+  hold_cutoff: 0.30                    # note similarity at or above this, with a bad outcome, holds the step
+  bad_outcomes: [hold, aki, hyperkalaemia, hypotension, fall]
+
+line:
+  liff_id: ""                          # set to load the patient app inside LINE (LIFF). Empty = normal browser.
+  # LINE_CHANNEL_TOKEN in .env enables push notifications (link only, never health data)

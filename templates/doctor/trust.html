@@ -1,0 +1,31 @@
+{% extends "doctor/base.html" %}
+{% block title %}{{ _("Trust numbers") }}{% endblock %}
+{% block content %}
+<div>
+  <h1 class="page-title">{{ _("Trust numbers") }}</h1>
+  <p class="page-sub">{{ _("Measured on a labelled test set by") }} <code>scripts/eval.py</code>. {{ _("Never typed in by hand.") }}</p>
+</div>
+{% if results %}
+<section class="kpis">
+  {% for k in results.metrics %}
+  <div class="kpi {{ 'green' if k.pass else 'red' }}"><span class="label">{{ _(k.name) }}</span><span class="value">{{ k.value }}</span><span class="hint">{{ k.detail }} · {{ _("target") }} {{ k.target }}</span></div>
+  {% endfor %}
+</section>
+<section class="panel"><div class="panel-head"><h3>{{ _("Run details") }}</h3></div>
+  <div class="panel-body"><dl class="kv">
+    <dt>{{ _("Run at") }}</dt><dd>{{ results.run_at }}</dd>
+    <dt>{{ _("Test set") }}</dt><dd>{{ results.testset }} ({{ _("{n} messages").format(n=results.n) }}){% if results.synthetic %} · <b>{{ _("synthetic, written by the team, not yet reviewed by a clinician") }}</b>{% endif %}</dd>
+    <dt>{{ _("Reader") }}</dt><dd>{{ results.reader }}</dd>
+  </dl>
+  {% if results.misses %}<span class="label">{{ _("Misses") }}</span>
+    {% for m in results.misses %}<div class="case"><span lang="th">“{{ m.text }}”</span><span class="muted">{{ m.problem }}</span></div>{% endfor %}
+  {% endif %}
+  </div>
+</section>
+{% else %}
+<section class="panel"><div class="panel-body">
+  <p><b>{{ _("Not measured yet.") }}</b> {{ _("Run") }} <code>.venv/bin/python scripts/eval.py</code> {{ _("to fill this page.") }}</p>
+  <p class="muted">{{ _("Unsupported claims shown to the doctor are blocked by code (the claim checker), so that number is 0% by design. The others must be measured.") }}</p>
+</div></section>
+{% endif %}
+{% endblock %}

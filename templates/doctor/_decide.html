@@ -1,0 +1,71 @@
+{# Decision box in the Today column. Every patient gets the same three buttons in the same place:
+   Approve · Edit · Reject. What differs is how much each asks first (service.buttons):
+   tap = acts on one tap (filled) · confirm = opens a short step below: reason, evidence tick or dose (outlined) · off = greyed.
+   Reasons come from settings.doctor.reasons. #}
+{% from "icons.html" import icon %}
+{% set b, pr, R, ev = c.buttons, c.prop.primary, S().doctor.reasons, c.prop.friction == "review" %}
+{% set act = "/d/patient/" ~ c.p.id ~ "/decide" %}
+{% set opened = "edit" if open == "change" else open %}
+{% macro dose(drug, d) %}{% set l = drugs()[drug].get("labels", {}) %}{{ l[d] if d in l else d|dose }}{% endmacro %}
+{% macro evidence() %}<label class="check"><input type="checkbox" name="evidence_ok" value="1"> <span>{{ _("I have reviewed the checks, similar patients and the patient's message." if c.similar else "I have reviewed the checks and the patient's message.") }}</span></label>{% endmacro %}
+{% macro reasons(list, required=true) %}<div class="reasons">{% for r in list %}<label class="choice"><input type="radio" name="reason" value="{{ r }}" {% if required and loop.first %}required{% endif %}> {{ _(r) }}</label>{% endfor %}</div>
+<input class="note-in" type="text" name="note" placeholder="{{ _('Note (needed if you pick Other)') }}" autocomplete="off">{% endmacro %}
+
+<div class="decide" id="decide">
+  {% if err %}<div class="flash error" role="alert">{{ err }}</div>{% endif %}
+  <div class="dbtns">
+    {% for key, label, ic in [("approve", "Approve", "check"), ("edit", "Edit", "edit"), ("reject", "Reject", "x")] %}{% set m = b[key] %}
+    <div class="dbtn-cell">
+      {% if m.mode == "tap" %}
+        <form method="post" action="{{ act }}"><input type="hidden" name="action" value="{{ key }}">
+          <button class="dbtn {{ key }} tap" type="submit">{{ icon(ic) }} {{ _(label) }}</button></form>
+      {% elif m.mode == "confirm" %}
+        <a class="dbtn {{ key }} confirm" href="?open={{ key }}#decide" data-panel="dp-{{ key }}" aria-controls="dp-{{ key }}" aria-expanded="{{ 'true' if opened == key else 'false' }}">{{ icon(ic) }} {{ _(label) }}</a>
+      {% else %}
+        <button class="dbtn {{ key }} off" type="button" disabled>{{ icon(ic) }} {{ _(label) }}</button>
+      {% endif %}
+      <small class="dhint">{{ _(m.hint) }}</small>
+    </div>
+    {% endfor %}
+  </div>
+
+  {% if b.approve.mode == "confirm" %}
+  <form id="dp-approve" class="dpanel approve" method="post" action="{{ act }}"{% if opened != "approve" %} hidden{% endif %}>
+    <input type="hidden" name="action" value="approve">
+    {% if c.status == "hold" %}<span class="d-q">{{ _("This step is on hold. Why override?") }}</span>{{ reasons(R.override) }}{% endif %}
+    {% if ev %}{{ evidence() }}{% endif %}
+    <button class="btn {{ 'btn-danger' if c.status == 'hold' else 'btn-primary' }}" {% if ev %}data-needs-evidence{% endif %}>{{ _("Override and approve" if c.status == "hold" else "Confirm approval") }}: {{ drugs()[pr.drug].name_en }} {{ dose_label(pr.drug, pr.to) }}</button>
+  </form>
+  {% endif %}
+
+  {% if b.edit.mode == "confirm" %}{% set maxl = c.choices|map(attribute="ladder")|map("length")|max %}
+  <form id="dp-edit" class="dpanel edit" method="post" action="{{ act }}"{% if opened != "edit" %} hidden{% endif %}>
+    <input type="hidden" name="action" value="change">
+    <span class="d-q">{{ _("Pick one new dose") }} <span class="muted">· {{ _("mg each time") }}</span></span>
+    <table class="picker">
+      <tbody>{% for r in c.choices %}
+      <tr style="--c: var(--cls-{{ r.cls|lower }})">
+        <th scope="row"><span class="pk-name">{{ r.name }}</span><small>{{ _("twice daily" if drugs()[r.drug].freq == "bid" else "once daily") }}{% if r.blocked %} · <b class="stop" title="{{ _(r.blocked) }}">{{ _("stop rule") }}</b>{% endif %}</small></th>
+        {% for d in r.ladder %}{% set k = "now" if d == r.now else "down" if d < r.now else "up" %}
+        <td><label class="dose-chip {{ k }}{% if d == r.suggested %} sugg{% endif %}{% if d == r.target %} at-target{% endif %}">
+          <input type="radio" name="choice" value="{{ r.drug }}|{{ d }}"{% if d == r.now %} disabled{% endif %}{% if d == r.suggested and c.status != "hold" %} checked{% endif %}>
+          <span>{{ dose(r.drug, d) }}</span>
+          <small>{% if d == r.now %}{{ _("now") }}{% elif d == r.suggested %}{{ _("suggested") }}{% elif d == r.target %}{{ _("target") }}{% elif k == "down" %}↓{% else %}↑{% endif %}</small>
+        </label></td>{% endfor %}
+        {% for _i in range(maxl - r.ladder|length) %}<td></td>{% endfor %}
+      </tr>{% endfor %}</tbody>
+    </table>
+    <span class="d-q">{{ _("Why") }} <span class="muted">({{ _("optional; needed to go up on a held or stop-rule drug") }})</span></span>{{ reasons(R.change, required=false) }}
+    {% if ev %}{{ evidence() }}{% endif %}
+    <button class="btn btn-blue" {% if ev %}data-needs-evidence{% endif %}>{{ _("Approve the chosen dose") }}</button>
+  </form>
+  {% endif %}
+
+  {% if b.reject.mode == "confirm" %}
+  <form id="dp-reject" class="dpanel reject" method="post" action="{{ act }}"{% if opened != "reject" %} hidden{% endif %}>
+    <input type="hidden" name="action" value="reject">
+    <span class="d-q">{{ _("Why not today?") }}</span>{{ reasons(R.not_now) }}
+    <button class="btn btn-danger">{{ _("No change today") }}</button>
+  </form>
+  {% endif %}
+</div>

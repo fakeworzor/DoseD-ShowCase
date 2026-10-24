@@ -1,0 +1,201 @@
+{% extends "doctor/base.html" %}
+{% from "icons.html" import icon %}
+{% set p, m, pr, f = c.p, c.m, c.prop.primary, c.flow %}{% set t = f.today %}
+{% block title %}HN {{ p.id }}{% endblock %}
+{% block body_class %}focus{% endblock %}
+{% block side %}{% endblock %}
+{% block context %}<nav class="qnav" aria-label="{{ _('Titration queue') }}">
+  <a class="brand" href="/d"><span class="brand-mark">{{ icon("heart") }}</span>{{ S().app.name }}</a>
+  <a class="crumb" href="/d">{{ icon("back") }} {{ _("Titration queue") }}</a>
+  <span class="muted">{{ _("patient {i} of {n}").format(i=pos.i, n=pos.n) }}</span>
+  <span class="qstep">{% if pos.prev %}<a class="btn btn-sm" href="/d/patient/{{ pos.prev }}" aria-label="{{ _('Previous patient') }}">{{ icon("prev") }}</a>{% endif %}{% if pos.next %}<a class="btn btn-sm" href="/d/patient/{{ pos.next }}" aria-label="{{ _('Next patient') }}">{{ _("Next") }} {{ icon("fwd") }}</a>{% endif %}</span>
+</nav>{% endblock %}
+{% block top_action %}<a class="btn btn-sm" href="/p" target="_blank" rel="noopener">{{ _("Open patient app") }}</a>{% endblock %}
+
+{# dose number as the doctor reads it (ARNI shows 24/26 etc.) #}
+{% macro dose(drug, d) %}{% set l = drugs()[drug].get("labels", {}) %}{{ l[d] if d in l else d|dose }}{% endmacro %}
+{% macro med_row(x, note="") %}
+<li class="med{% if x.changed %} changed {{ x.dir }}{% endif %}" style="--c: var(--cls-{{ x.cls|lower }})">
+  <span class="med-ic" aria-hidden="true">{% if x.dir == "up" %}{{ icon("up") }}{% elif x.dir == "down" %}{{ icon("down") }}{% elif x.dir == "new" %}{{ icon("plus") }}{% else %}{{ icon("next") }}{% endif %}</span>
+  <span class="med-txt"><span class="med-name">{{ x.name }}</span>
+    <span class="num">{% if x.changed and x["from"] is not none %}{{ dose(x.drug, x["from"]) }} → {% endif %}{{ dose(x.drug, x.dose) }}</span>
+    {% if x.target %}<span class="tgt">{{ _("Target") }}</span>{% endif %}
+    {% if note %}<small>{{ note }}</small>{% endif %}</span>
+</li>
+{% endmacro %}
+{# Today cell: colour and mark from flowsheet state (ok green ✓ · warn amber ! · stop red ✕) #}
+{% macro today_td(row, num=true) %}{% set st = t.state[row] %}
+<td class="today{% if num %} num{% endif %}{% if st %} st-{{ st }}{% endif %}">{% if st %}<span class="mk" title="{{ _({'ok': 'Check passed', 'warn': 'Look at this', 'stop': 'Stop rule or failed check'}[st]) }}">{{ {"ok": "✓", "warn": "!", "stop": "✕"}[st] }}</span>{% endif %}{{ caller() }}</td>
+{%- endmacro %}
+
+{% block content %}
+{% if msg %}<div class="flash" role="status">{{ msg }}</div>{% endif %}
+
+<section class="panel pt-head">
+  <div class="pt-top">
+    <h1 class="page-title">HN {{ p.id }} · {{ p.age }} {{ p.sex }} <span class="pt-sub">HFrEF, EF {{ p.ef }}% · {{ _("coverage") }} {{ p.coverage }}</span></h1>
+    <div class="chips">
+      {% for d in p.diagnoses %}<span class="chip">{{ _(d) }}</span>{% endfor %}
+      <span class="chip nyha-{{ p.nyha or 0 }}">NYHA {{ t.nyha }}</span>
+      <span class="chip{% if p.allergies %} warn{% endif %}">{{ _("Allergy:") ~ " " ~ p.allergies|join(", ") if p.allergies else _("No allergies") }}</span>
+    </div>
+    <span class="pill {{ c.status }}">{{ _(c.label) }}</span>
+  </div>
+  <p class="pt-plan muted">{{ _("Plan agreed") }} {{ p.plan.agreed }}: {{ _(p.plan.goal)|lower }}.{% for pref in p.plan.preferences %} {{ _(pref) }}.{% endfor %}
+    {% if f.extra %}{{ _("Also on") }} {% for x in f.extra %}{{ drugs()[x.drug].name_en|lower }} {{ dose_label(x.drug, x.dose) }}{{ ", " if not loop.last }}{% endfor %}.{% endif %}</p>
+</section>
+
+<div class="flow-wrap" data-scroll-end>
+<table class="flow">
+  <thead><tr>
+    <th class="rowh" scope="col">{{ _("Date") }}</th>
+    {% for v in f.past %}<th scope="col"><b>{{ v.day }}</b>
+      <span class="visit {{ v.kind }}">{{ icon("building" if v.kind == "clinic" else "flask" if v.kind == "lab" else "phone") }}{{ _(v.note or {"clinic": "clinic", "remote": "remote review", "lab": "lab only"}.get(v.kind, v.kind)) }}</span></th>{% endfor %}
+    <th scope="col" class="today"><b>{{ _("Today") }} · {{ today().strftime("%-d %b") }}</b><span class="visit">{{ icon("user") }}{{ _("home readings + check-in") }}</span></th>
+  </tr></thead>
+  <tbody>
+    <tr><th class="rowh" scope="row">{{ icon("user") }}{{ _("Symptoms") }}</th>
+      {% for v in f.past %}<td>{% if v.nyha %}NYHA {{ v.nyha }}{% if v.symptoms %}, {{ _(v.symptoms) }}{% endif %}{% else %}<span class="muted">–</span>{% endif %}</td>{% endfor %}
+      {% call today_td("symptoms", num=false) %}<div class="sym-line"><b>{{ t.symptoms|capitalize }}</b> <small>{{ t.symptoms_src }}{% if t.attachments %} · {{ _("{n} attachment(s) below").format(n=t.attachments) }}{% endif %}</small>
+        {% if c.msg and c.msg.text %}<small class="say" lang="th" title="{{ c.msg.text }}">“{{ c.msg.text }}”</small>{% endif %}</div>{% endcall %}</tr>
+
+    <tr><th class="rowh" scope="row">{{ icon("scale") }}{{ _("Weight") }} <small>kg</small></th>
+      {% for v in f.past %}<td class="num">{{ v.weight|d1 if v.weight else "–" }}</td>{% endfor %}
+      {% call today_td("weight") %}{{ t.weight|d1 if t.weight else "–" }} {% if t.weight_delta is not none %}<small>{{ t.weight_delta|signed }} · {{ _("home") }}</small>{% endif %}{% endcall %}</tr>
+
+    <tr><th class="rowh" scope="row">{{ icon("gauge") }}BP <small>mmHg</small></th>
+      {% for v in f.past %}<td class="num">{{ v.sys ~ "/" ~ v.dia if v.sys else "–" }}</td>{% endfor %}
+      {% call today_td("bp") %}{{ t.sys }}/{{ t.dia }} <small>{% if t.sys_delta is not none %}{{ t.sys_delta|signed }} {{ _("systolic") }} · {% endif %}{{ _("avg of {n} home").format(n=t.readings) }}</small>
+        {% for r in t.flagged %}<small class="note">{{ _("Sent despite warning") }}: {{ r.sys }}/{{ r.dia }} {{ _("pulse") }} {{ r.pulse }} · {{ r.at[5:16] }} ({{ _({"range": "outside the usual range", "jump": "far from the 7-day average"}.get(r.flag, r.flag)) }})</small>{% endfor %}
+        {% for r in t.edited %}<small class="note">{{ _("Patient corrected a reading at {t}").format(t=r.edited[11:16]) }}: {{ r.original }} → {{ r.sys }}/{{ r.dia }} {{ _("pulse") }} {{ r.pulse }}</small>{% endfor %}
+        {% if t.ihb %}<small class="note">{{ _("Irregular-heartbeat symbol on {n} reading(s)").format(n=t.ihb) }}</small>{% endif %}
+        {% for x in t.photos_unread %}<small class="note">{{ _("BP photo sent {t}, numbers not read").format(t=x.at[5:16]) }}: <a href="/d/upload/{{ p.id }}/{{ x.file }}" target="_blank" rel="noopener">{{ _("view photo") }}</a>{% if x.note %} ({{ x.note }}){% endif %}</small>{% endfor %}{% endcall %}</tr>
+
+    <tr><th class="rowh" scope="row">{{ icon("heart") }}HR <small>bpm</small></th>
+      {% for v in f.past %}<td class="num">{{ v.hr or "–" }}</td>{% endfor %}
+      {% call today_td("hr") %}{{ t.hr }} <small>{% if t.hr_delta is not none %}{{ t.hr_delta|signed }} · {% endif %}{{ _("home") }}</small>{% endcall %}</tr>
+
+    <tr><th class="rowh" scope="row">{{ icon("drop") }}Cr <small>mg/dL</small></th>
+      {% for v in f.past %}<td class="num">{{ v.lab.cr|d2 if v.lab else "–" }}</td>{% endfor %}
+      {% call today_td("cr") %}{{ t.cr|d2 }} <small>{% if t.cr_delta %}{{ t.cr_delta|signed }} · {% endif %}eGFR {{ m.egfr|fmt }} · {{ _("lab {d} d ago").format(d=t.lab_age) }}</small>{% endcall %}</tr>
+
+    <tr><th class="rowh" scope="row">{{ icon("flask") }}K+ <small>mmol/L</small></th>
+      {% for v in f.past %}<td class="num">{{ v.lab.k|d1 if v.lab else "–" }}</td>{% endfor %}
+      {% call today_td("k") %}{{ t.k|d1 }} <small>{% if t.k_delta is not none %}{{ t.k_delta|signed }} · {% endif %}{{ _("lab") }}{% if m.k_rising_n >= 2 %} · {{ _("rising {n}×").format(n=m.k_rising_n) }}{% endif %}</small>{% endcall %}</tr>
+
+    <tr class="gdmt"><th class="rowh" scope="row">{{ icon("pill") }}GDMT <small>mg</small></th>
+      {% for v in f.past %}<td><ul class="meds">{% for x in v.meds %}{{ med_row(x) }}{% endfor %}</ul></td>{% endfor %}
+      <td class="today">
+        {% if c.status == "signed" %}
+          <span class="label" id="decide">{{ _("Decision") }}</span>
+          <div class="sugg signed"><b>{{ icon("check") }} {{ _(c.signed.action|capitalize) }}</b> <span>{{ c.signed.by }} · {{ c.signed.at[11:16] }}{% if c.signed.reason %} · {{ c.signed.reason }}{% endif %}</span></div>
+          <ul class="meds">{% for x in t.meds %}{{ med_row(x) }}{% endfor %}</ul>
+          {% if order %}<div class="quote" lang="th">{{ order.message }}</div><span class="muted small">{{ _("Sent text") }}: {{ _(order.message_source) }}. {{ _("Patient confirmed starting at {t}").format(t=order.started[11:16]) if order.started else _("Patient has not confirmed starting yet") }}.</span>{% endif %}
+        {% else %}
+          {% if c.status == "red_flag" %}
+            <span class="label">{{ _("Red flag") }}</span>
+            <div class="sugg red_flag"><b>{{ _("No dose change. Patient escalated.") }}</b>{% if c.msg %}<span>“<span lang="th">{{ c.msg.text }}</span>” · {{ c.msg.at[11:16] }}</span>{% endif %}
+              <form method="post" action="/d/patient/{{ p.id }}/decide"><button class="btn btn-red-solid btn-sm" name="action" value="acknowledge">{{ _("Acknowledge red flag") }}</button></form></div>
+            <ul class="meds">{% for x in t.meds %}{{ med_row(x) }}{% endfor %}</ul>
+          {% elif c.status == "waiting" %}
+            <span class="label">{{ _("Waiting for data") }}</span>
+            <div class="sugg waiting">{% for i in c.prop.issues %}<span>{{ i }}</span>{% endfor %}</div>
+            <ul class="meds">{% for x in t.meds %}{{ med_row(x) }}{% endfor %}</ul>
+          {% elif pr %}
+            <div class="sugg {{ c.status }}" style="--c: var(--cls-{{ pr.cls|lower }})">
+              <span class="label sugg-label">{{ _("On hold" if c.status == "hold" else "Suggestion") }} <span class="muted">· {{ _("not yet decided") }}</span></span>
+              <div class="sugg-title"><span class="med-ic">{{ icon("plus" if pr.kind in ("add", "switch") else "up") }}</span>
+                <span><b>{% if pr.kind == "switch" %}{{ drugs()[pr.replaces].name_en }} → {{ drugs()[pr.drug].name_en }}{% else %}{{ drugs()[pr.drug].name_en }}{% endif %}</b>
+                {% if pr.kind == "step" %}<span class="num">{{ dose(pr.drug, pr["from"]) }} →</span> {% endif %}<b class="num">{{ dose_label(pr.drug, pr.to) }}</b></span></div>
+              <span class="muted">{{ _("Rule") }} {{ pr.rule_id }} ·
+                {% if c.guard %}{{ c.guard.text }}{% elif c.status == "hold" %}{% for s_ in c.prop.stops %}{{ _(s_.text) }}{{ "; " if not loop.last }}{% endfor %}{% elif pr.note %}{{ _(pr.note) }}{% elif c.prop.priority_rule and pr.kind == "step" %}{{ _(c.prop.priority_rule.text) }}{% else %}{{ _(pr.rule_text) }}{% endif %}</span>
+              <div class="chips-row">
+              {% for ch in c.checks if ch.kind == "need" or not ch.ok %}<span class="tag {{ 'ok' if ch.ok else 'no' }}">{{ "✓" if ch.ok else "✕" }} {{ ch.short or ch.text }}</span>{% endfor %}
+              {% if c.checks|selectattr("kind", "equalto", "stop")|selectattr("ok")|list|length == c.checks|selectattr("kind", "equalto", "stop")|list|length %}<span class="tag ok">✓ {{ _("No stop rule") }}</span>{% endif %}
+              {% for w in c.prop.warnings %}<span class="tag amber">! {{ _(w.text) }}{% if w.recheck_days %} · {{ _("recheck in {n} days").format(n=w.recheck_days) }}{% endif %}</span>{% endfor %}
+              {% if c.similar and c.similar.enough %}<span class="tag {{ 'amber' if c.similar.bad else 'ok' }}">{{ _("Similar patients: {a}/{n} bad outcome").format(a=c.similar.bad, n=c.similar.n) }}</span>{% endif %}
+              </div>
+            </div>
+            <ul class="meds">{% for x in t.meds if x.drug != pr.drug and x.drug != pr.replaces %}{{ med_row(x, f.others.get(x.drug, "")) }}{% endfor %}</ul>
+
+          {% else %}
+            <span class="label">{{ _("Suggestion") }}</span>
+            <div class="sugg no_change">{{ _("No change suggested.") }}</div>
+            <ul class="meds">{% for x in t.meds %}{{ med_row(x, f.others.get(x.drug, "")) }}{% endfor %}</ul>
+          {% endif %}
+          {% include "doctor/_decide.html" %}
+        {% endif %}
+      </td></tr>
+  </tbody>
+</table>
+</div>
+<div class="flow-legend">
+  <span>{{ icon("up") }} {{ _("changed at that visit") }}</span><span>{{ icon("next") }} {{ _("continued") }}</span><span><span class="tgt">{{ _("Target") }}</span> {{ _("at guideline target dose") }}</span>
+  <span class="cls-key">{% for k, cls in [("Beta-blocker", "bb"), ("ACEi / ARB / ARNI", "rasi"), ("MRA", "mra"), ("SGLT2i", "sglt2i")] %}<span style="--c: var(--cls-{{ cls }})"><i></i>{{ _(k) }}</span>{% endfor %}</span>
+  <span class="st-key"><span class="st-ok">✓ {{ _("check passed") }}</span><span class="st-warn">! {{ _("look at this") }}</span><span class="st-stop">✕ {{ _("stop") }}</span></span>
+  <span>{{ icon("building") }} {{ _("clinic") }}</span><span>{{ icon("phone") }} {{ _("remote") }}</span>
+  <span>{{ _("Every decision is logged with your name, the time and the rule version. The patient is messaged only when a dose changes.") }} ({{ RULES().version }})</span>
+</div>
+
+<div class="card-grid">
+  <section class="panel"><div class="panel-head"><h3>{{ _("Why") }}</h3></div>
+    <div class="panel-body"><dl class="kv">
+      {% if pr %}<dt>{{ _("Rule") }}</dt><dd><b>{{ pr.rule_id }}</b>: {{ _(pr.rule_text) }}.{% if c.prop.priority_rule and pr.kind == "step" %} {{ _("Order") }}: {{ _(c.prop.priority_rule.text)|lower }}.{% endif %}</dd>{% endif %}
+      {% if c.guideline %}<dt>{{ _("Guideline") }}</dt><dd>{{ c.guideline.source }}: {{ c.guideline.text }}</dd>{% endif %}
+      {% if c.msg %}<dt>{{ _("Patient said") }}</dt><dd>
+        <div class="quote"><span lang="th">“{{ c.msg.text }}”</span> <span class="muted">· {{ _(c.msg.from) }}, {{ c.msg.at }}{% if c.msg.edited %} · {{ _("edited by the patient") }}{% endif %}</span></div>
+        {% for old in c.msg.previous or [] %}<div class="muted small">{{ _("Before the edit") }} ({{ old.at[11:16] }}): “<span lang="th">{{ old.text }}</span>”{% if old.analysis.answers %} · {% for k, v in old.analysis.answers.items() %}{{ k }} {{ v }}{{ ", " if not loop.last }}{% endfor %}{% endif %}</div>{% endfor %}
+        {% if c.analysis and c.analysis.red_flag_earlier %}<div class="flash error">{{ _("An earlier answer today was a red flag. The patient changed it; the flag stays until you act.") }}</div>{% endif %}
+        {% if c.msg.attachments %}<div class="atts">{% for a in c.msg.attachments %}{% set u = "/d/upload/" ~ p.id ~ "/" ~ a.file %}
+          {% if a.kind == "image" %}<a href="{{ u }}" target="_blank" rel="noopener"><img src="{{ u }}" alt="Patient photo {{ loop.index }}"></a>
+          {% else %}<video src="{{ u }}" controls preload="metadata"></video>{% endif %}{% endfor %}</div>
+          <span class="muted small">{{ _("Attached by the patient. The AI does not read attachments; look at them yourself.") }}</span>{% endif %}
+        {% set a = c.analysis %}{% if a %}<div class="muted small" style="margin-top:8px">{{ _("Read by") }} {{ _(a.source) }}.
+          {% if a.summary_en %}{{ a.summary_en }}{% endif %}
+          {% if a.ai %}{% for k, v in a.ai.items() if v.answer == "yes" %} {{ _(k|replace("_", " "))|capitalize }}: {{ _("yes") }}{% if v.quote %} (“<span lang="th">{{ v.quote }}</span>”{% if not v.quote_ok %}, {{ _("quote not found in message") }}{% endif %}){% endif %}.{% endfor %}{% endif %}
+          {% for kind, words in a.keywords.items() if words %} {{ _("Keyword") }} {{ _(kind|replace("_", " ")) }}: <span lang="th">{{ words|join(", ") }}</span>.{% endfor %}
+          {% if a.answers %} {{ _("Check-in answers") }}: {% for k, v in a.answers.items() %}{{ _(k) }} {{ _(v) }}{{ ", " if not loop.last }}{% endfor %}.{% endif %}
+        </div>{% endif %}
+      </dd>{% endif %}
+    </dl></div>
+  </section>
+
+  {% if c.checks %}
+  <section class="panel"><div class="panel-head"><h3>{{ _("All safety checks") }}</h3><span class="muted">{{ _("Rules") }} {{ RULES().version }}</span></div>
+    <div class="panel-body"><div class="btn-row">
+      {% for ch in c.checks %}<span class="tag {{ 'ok' if ch.ok else 'no' }}">{{ "✓" if ch.ok else "✕" }} {{ ch.text }}</span>{% endfor %}
+      {% for w in c.prop.warnings %}<span class="tag amber">! {{ _(w.text) }}</span>{% endfor %}
+    </div><span class="muted small">{{ _("Thresholds are placeholders until a cardiologist signs the rule set") }} ({{ RULES().signed_by }}).</span></div>
+  </section>
+  {% endif %}
+
+  {% if c.similar %}{% set s = c.similar %}
+  <section class="panel"><div class="panel-head"><h3>{{ _("What happened to similar patients") }}</h3><span class="muted">{{ "InterSystems IRIS" if s.backend == "iris" else _("local search") }}</span></div>
+    <div class="panel-body">
+      {% if s.note %}<div class="flash error">{{ s.note }}</div>{% endif %}
+      <span class="muted">{{ _("Matched on") }}: {{ s.matched_on }}</span>
+      {% if s.enough %}
+      <div class="stats">
+        <div class="stat"><span class="label">{{ _("K+ change at follow-up") }}</span><span class="value">{{ s.k_median|signed }}</span><span class="muted">{{ _("median · range {a} to {b}").format(a=s.k_min|signed, b=s.k_max|signed) }}</span></div>
+        <div class="stat warn"><span class="label">{{ _("Bad outcome") }}</span><span class="value">{{ _("{a} of {n}").format(a=s.bad, n=s.n) }}</span><span class="muted">{{ _("needed a hold, or K+/kidney/BP problem") }}</span></div>
+        <div class="stat"><span class="label">{{ _("No follow-up lab") }}</span><span class="value">{{ _("{a} of {n}").format(a=s.lost, n=s.n) }}</span><span class="muted">{{ _("outcome unknown") }}</span></div>
+      </div>
+      {% else %}<p class="muted">{{ _("Not enough similar patients ({n} found, minimum {min}). No numbers shown.").format(n=s.n, min=s.min_cases) }}</p>{% endif %}
+      {% if s.neighbours %}<span class="label">{{ _("Closest notes to what this patient said") }}</span>
+        {% for n in s.neighbours %}<div class="case"><span lang="th">“{{ n.note }}”</span><span class="{{ 'tag no' if n.outcome in S().similar.bad_outcomes else 'tag' }}">{{ _(n.outcome) }} · {{ _("similarity") }} {{ n.sim }}</span></div>{% endfor %}
+      {% endif %}
+      <span class="muted small">{{ _("Synthetic cases for the demo. Observational, not a prediction: past patients got this step because their doctor judged them suitable, so results may look better than reality. This panel can only add caution.") }}</span>
+    </div>
+  </section>
+  {% endif %}
+
+  {% if c.preview and c.status not in ("signed", "red_flag") %}
+  <section class="panel"><div class="panel-head"><h3>{{ _("Patient will receive") }}</h3></div>
+    <div class="panel-body">
+      <div class="quote" lang="th">{{ c.preview.text }}</div>
+      <span class="muted small">{{ _("Drug, tablets and dates come from the order.") }} {% if ai_on() %}{{ _("On approval the AI may reword it; a checker rejects any number or drug not in the order, and then this exact text is sent.") }}{% endif %}</span>
+    </div>
+  </section>
+  {% endif %}
+</div>
+{% endblock %}

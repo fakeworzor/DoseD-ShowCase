@@ -1,0 +1,16 @@
+{% extends "patient/base.html" %}
+{% from "patient/_steps.html" import header %}
+{% block content %}{% set t = T() %}
+{{ header(p.id, "bp", "/p/" ~ p.id ~ ("/bp/today" if edit else "/bp")) }}
+<h1 class="p-title">{{ t.type_edit_title if edit else t.type_title }}</h1>
+<form method="post" action="/p/{{ p.id }}/bp/type" style="display:flex;flex-direction:column;gap:16px">
+  <input type="hidden" name="edit" value="{{ edit or '' }}">
+  {% for name, label, hint, unit in [("sys", t.type_top, t.type_top_hint, t.unit_mmhg), ("dia", t.type_bottom, t.type_bottom_hint, t.unit_mmhg), ("pulse", t.type_pulse, t.type_pulse_hint, t.unit_bpm)] %}
+  <div class="field">
+    <label for="{{ name }}">{{ label }} <span class="hint">· {{ hint }}</span></label>
+    <div class="row"><input id="{{ name }}" name="{{ name }}" type="number" inputmode="numeric" min="20" max="300" required value="{{ draft[name] if draft else '' }}"><span class="unit">{{ unit }}</span></div>
+  </div>
+  {% endfor %}
+  <div class="dock"><button class="btn-big primary" type="submit">{{ t.type_next }}</button></div>
+</form>
+{% endblock %}

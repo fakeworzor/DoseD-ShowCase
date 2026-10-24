@@ -1,0 +1,33 @@
+{% extends "patient/base.html" %}
+{% from "patient/_steps.html" import header %}
+{% block content %}{% set t = T() %}{% set up = S().uploads %}
+{{ header(p.id, "checkin", "/p/" ~ p.id) }}
+<h1 class="p-title">{{ t.checkin_edit_title if sent else t.sym_title }}</h1>
+{% if sent %}<div class="alert">{{ t.checkin_edit_note.format(time=sent.at[11:16]) }}{% if sent.attachments %}<br>{{ t.checkin_files_kept.format(n=sent.attachments|length) }}{% endif %}</div>{% endif %}
+{% if error %}<div class="alert red" role="alert">{{ error }}</div>{% endif %}
+<form method="post" action="/p/{{ p.id }}/checkin" enctype="multipart/form-data" style="display:flex;flex-direction:column;gap:18px">
+  {% for name, q in [("breathless", t.sym_breathless), ("orthopnea", t.sym_orthopnea), ("dizzy", t.sym_dizzy), ("swelling", t.sym_swelling)] %}
+  <fieldset class="yesno" style="border:0;padding:0;margin:0">
+    <legend class="q">{{ q }}</legend>
+    <div class="opts">
+      <label><input type="radio" name="{{ name }}" value="yes" required {% if prev[name] == "yes" %}checked{% endif %}> {{ t.sym_yes }}</label>
+      <label><input type="radio" name="{{ name }}" value="no" {% if prev[name] == "no" %}checked{% endif %}> {{ t.sym_no }}</label>
+    </div>
+  </fieldset>
+  {% endfor %}
+  <div class="field">
+    <label for="note" style="font-size:1em;font-weight:600">{{ t.sym_note }}</label>
+    <textarea id="note" name="note" class="note">{{ prev.note or "" }}</textarea>
+  </div>
+  <div class="field attach">
+    <span style="font-weight:600">{{ t.media_label }}</span>
+    <span class="hint">{{ t.media_hint.format(n=up.max_files, mb=up.max_mb) }}</span>
+    <label class="btn-big file-btn attach-btn">{{ icon("camera") }} {{ t.media_pick }}
+    <input id="media" name="media" type="file" accept="image/*,video/*" multiple
+           data-max-mb="{{ up.max_mb }}" data-max-files="{{ up.max_files }}"
+           data-msg-big="{{ t.media_too_big.format(mb=up.max_mb) }}" data-msg-many="{{ t.media_too_many.format(n=up.max_files) }}"></label>
+    <div class="media-list" id="media-list" aria-live="polite"></div>
+  </div>
+  <div class="dock"><button class="btn-big primary" type="submit">{{ t.sym_send }}</button></div>
+</form>
+{% endblock %}

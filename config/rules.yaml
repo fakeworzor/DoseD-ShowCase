@@ -1,0 +1,115 @@
+# Titration rules. PLACEHOLDER VALUES: a cardiologist must review and sign before any real use.
+# Conditions are lists of [metric, operator, value]; all conditions in a list must be true.
+# Metrics available: sbp_avg, dia_avg, hr_avg, k, cr, cr_rise_pct, egfr, weight_gain_3d,
+#   k_rising_n, nyha, dizzy (0/1), nsaid (0/1), lab_age_days, reading_days
+
+version: "0.1-demo"
+signed_by: "[cardiologist] (placeholder, not clinically signed)"
+review_interval_days: 14               # a patient becomes "due" this many days after the last dose change
+
+data_requirements:                     # not met -> status "waiting", no suggestion
+  min_reading_days: 3                  # days with at least one home reading, in the last reading_window_days
+  reading_window_days: 3
+  lab_max_age_days: 14
+
+# Hard stops: any match holds steps for the listed drug classes.
+stops:
+  - id: LOW-SBP
+    text: "Average systolic BP below 95"
+    when: [[sbp_avg, "<", 95]]
+    classes: [BB, RASI, ARNI, MRA]
+  - id: SYMPTOMATIC-HYPOTENSION
+    text: "Dizziness with average systolic BP below 100"
+    when: [[sbp_avg, "<", 100], [dizzy, "==", 1]]
+    classes: [BB, RASI, ARNI, MRA]
+  - id: HIGH-K
+    text: "Potassium above 5.0"
+    when: [[k, ">", 5.0]]
+    classes: [MRA, RASI, ARNI]
+  - id: CREATININE-RISE
+    text: "Creatinine up more than 30% from baseline"
+    when: [[cr_rise_pct, ">", 30]]
+    classes: [MRA, RASI, ARNI, SGLT2I]
+  - id: NSAID
+    text: "NSAID mentioned (raises potassium and kidney risk)"
+    when: [[nsaid, "==", 1]]
+    classes: [MRA, RASI, ARNI]
+  - id: LOW-HR
+    text: "Average heart rate below 60"
+    when: [[hr_avg, "<", 60]]
+    classes: [BB]
+  - id: WEIGHT-GAIN
+    text: "Weight up more than 2 kg in 3 days (possible fluid build-up)"
+    when: [[weight_gain_3d, ">", 2.0]]
+    classes: [BB, RASI, ARNI, MRA, SGLT2I]
+
+# Per-class conditions for a one-step dose increase.
+step_rules:
+  BB:
+    id: BB-STEP
+    text: "Beta-blocker step when heart rate is at least 60 and systolic BP at least 100"
+    require: [[hr_avg, ">=", 60], [sbp_avg, ">=", 100]]
+  RASI:
+    id: ACEI-STEP
+    text: "ACE inhibitor step needs systolic BP of at least 110 and K+ of 5.0 or less"
+    require: [[sbp_avg, ">=", 110], [k, "<=", 5.0]]
+  ARNI:
+    id: ARNI-STEP
+    text: "ARNI step needs systolic BP of at least 110 and K+ of 5.0 or less"
+    require: [[sbp_avg, ">=", 110], [k, "<=", 5.0]]
+  MRA:
+    id: MRA-STEP
+    text: "MRA step needs K+ of 5.0 or less and eGFR of at least 30"
+    require: [[k, "<=", 5.0], [egfr, ">=", 30]]
+
+# Which class to step first. The first matching "when" wins; "default" otherwise.
+priority:
+  - id: LOW-BP-ORDER
+    text: "When systolic BP is under 110, step the MRA first (it lowers BP the least)"
+    when: [[sbp_avg, "<", 110]]
+    order: [MRA, BB, RASI, ARNI]
+  - id: DEFAULT-ORDER
+    text: "Default order"
+    when: []
+    order: [BB, RASI, ARNI, MRA]
+
+# Drug changes (add / switch). Always need the doctor's full review.
+changes:
+  - id: ADD-SGLT2I
+    kind: add
+    text: "Add an SGLT2 inhibitor (4th pillar) when eGFR is at least 20"
+    missing_class: SGLT2I
+    when: [[egfr, ">=", 20]]
+    drug: empagliflozin
+    dose: 10
+  - id: ADD-MRA
+    kind: add
+    text: "Add an MRA when K+ is 5.0 or less and eGFR at least 30"
+    missing_class: MRA
+    when: [[k, "<=", 5.0], [egfr, ">=", 30]]
+    drug: spironolactone
+    dose: 12.5
+  - id: ARNI-SWITCH
+    kind: switch
+    text: "Replace the ACE inhibitor with sacubitril/valsartan when still symptomatic at target ACE inhibitor dose"
+    from_class: RASI
+    from_at_target: true
+    when: [[nyha, ">=", 2], [sbp_avg, ">=", 100], [k, "<=", 5.0]]
+    drug: sacubitril_valsartan
+    dose: 50
+    note: "Stop the ACE inhibitor 36 hours before the first dose."
+
+# Warnings: shown on the card; they make Approve need an evidence check first.
+warnings:
+  - id: K-RISING
+    text: "Potassium has risen 3 results in a row"
+    when: [[k_rising_n, ">=", 3]]
+    recheck_days: 7
+
+# Safety lab booked automatically after an approved change, by class.
+recheck_days:
+  MRA: 7
+  RASI: 7
+  ARNI: 7
+  BB: 14
+  SGLT2I: 14

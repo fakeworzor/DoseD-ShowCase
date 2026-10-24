@@ -1,0 +1,34 @@
+{% extends "patient/base.html" %}
+{% from "patient/_steps.html" import header %}
+{% block content %}{% set t = T() %}
+{{ header(p.id, "meds", "/p/" ~ p.id) }}
+<div style="display:flex;justify-content:space-between;align-items:flex-end;gap:10px">
+  <h1 class="p-title">{{ t.meds_title }}</h1>
+  <button type="button" class="btn-big" style="width:auto;min-height:48px;font-size:0.9em" data-read="meds-text" hidden>{{ t.read_aloud }}</button>
+</div>
+
+<div id="meds-text" style="display:flex;flex-direction:column;gap:14px">
+{% for o in pending %}{% set d = drugs()[o.drug] %}
+  <section class="change">
+    <span class="top">{{ t.meds_changed.format(date=day_label(o.start|todate)) }}</span>
+    <span class="drug"><b lang="en">{{ box_label(o.drug, o.to) }}</b>{% if lang() == "th" %}<small>{{ d.name_th }}</small>{% endif %}</span>
+    <div class="oldnew">
+      <div class="old"><span>{{ t.meds_old }}</span><br><b>{% if o.kind == "switch" %}{{ drug_name(o.replaces) }}{% elif o["from"] %}{{ tablets(o.drug, o["from"]) }}{% else %}-{% endif %}</b></div>
+      <div class="new"><span>{{ t.meds_new }}</span><br><b>{{ tablets(o.drug, o.to) }} {{ freq_th(o.drug) }}</b></div>
+    </div>
+    <p style="margin:0" lang="th">{{ o.message }}</p>
+    <span>{{ t.meds_lab.format(date=day_label(o.lab|todate), place=t.meds_lab_place) }}</span>
+    <span class="p-sub" style="font-size:0.8em">{{ t.meds_signed.format(doctor=o.by, date=day_label(o.at[:10]|todate)) }}</span>
+  </section>
+{% endfor %}
+
+  <section class="med-list">
+    <div class="head">{{ t.meds_unchanged if pending else t.meds_no_change }}</div>
+    {% for m in unchanged %}<div class="item"><span class="drug"><b lang="en">{{ box_label(m.drug, m.dose) }}</b>{% if lang() == "th" %}<small>{{ drugs()[m.drug].name_th }}</small>{% endif %}</span><span class="dose">{{ tablets(m.drug, m.dose) }}<small>{{ freq_th(m.drug) }}</small></span></div>{% endfor %}
+  </section>
+</div>
+
+{% if pending %}
+<form class="dock" method="post" action="/p/{{ p.id }}/meds/started"><button class="btn-big primary" type="submit">{{ t.meds_started }}</button></form>
+{% endif %}
+{% endblock %}

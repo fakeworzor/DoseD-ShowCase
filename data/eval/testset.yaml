@@ -1,0 +1,36 @@
+# Labelled test messages for scripts/eval.py.
+# SYNTHETIC, written by the team. Replace or extend with messages written and labelled by a clinician.
+# Labels: red_flag (needs escalation), dizzy, nsaid. Paraphrases on purpose: some avoid the keyword list.
+
+messages:
+  - {text: "เมื่อคืนนอนราบไม่ได้ หายใจไม่อิ่ม ต้องลุกนั่งทั้งคืน", red_flag: true, dizzy: false, nsaid: false}
+  - {text: "ต้องหนุนหมอนสามใบถึงจะหลับได้ ไม่งั้นหายใจไม่สะดวก", red_flag: true, dizzy: false, nsaid: false}
+  - {text: "แน่นหน้าอกตอนเดินขึ้นบันได", red_flag: true, dizzy: false, nsaid: false}
+  - {text: "เมื่อเช้าวูบไปแป๊บนึงตอนเข้าห้องน้ำ", red_flag: true, dizzy: true, nsaid: false}
+  - {text: "เหนื่อยหอบมากแม้นั่งเฉยๆ", red_flag: true, dizzy: false, nsaid: false}
+  - {text: "แม่เวียนหัวตอนลุกจากเตียงตอนเช้า ต้องนั่งพักก่อน", red_flag: false, dizzy: true, nsaid: false}
+  - {text: "ลุกเร็วๆ แล้วตาลาย ต้องจับโต๊ะไว้", red_flag: false, dizzy: true, nsaid: false}
+  - {text: "หน้ามืดนิดหน่อยตอนยืนนานๆ", red_flag: false, dizzy: true, nsaid: false}
+  - {text: "ปวดเข่า เลยกินไอบูโพรเฟนไป 2 วัน", red_flag: false, dizzy: false, nsaid: true}
+  - {text: "ซื้อยาแก้ปวดข้อจากร้านยามากินเอง", red_flag: false, dizzy: false, nsaid: true}
+  - {text: "หมอที่คลินิกให้ยาแก้อักเสบกล้ามเนื้อมากิน", red_flag: false, dizzy: false, nsaid: true}
+  - {text: "กินพาราเซตามอลแก้ปวดหัว", red_flag: false, dizzy: false, nsaid: false}
+  - {text: "วันนี้สบายดี ไม่เหนื่อย เดินได้ไกลขึ้น", red_flag: false, dizzy: false, nsaid: false}
+  - {text: "ปกติดีครับ ไม่มีอาการอะไร", red_flag: false, dizzy: false, nsaid: false}
+  - {text: "ยังเหนื่อยเวลาขึ้นบันได แต่ดีขึ้นกว่าเดือนก่อน", red_flag: false, dizzy: false, nsaid: false}
+  - {text: "ขาบวมขึ้นนิดหน่อยตอนเย็น", red_flag: false, dizzy: false, nsaid: false}
+  - {text: "ไม่ได้เวียนหัวเลย สบายดี", red_flag: false, dizzy: false, nsaid: false}
+  - {text: "หลานบอกว่าคุณยายนอนราบได้ปกติแล้ว", red_flag: false, dizzy: false, nsaid: false}
+  - {text: "ไอแห้งๆ ตอนกลางคืน", red_flag: false, dizzy: false, nsaid: false}
+  - {text: "กินข้าวได้น้อย ท้องเสียมา 2 วัน", red_flag: false, dizzy: false, nsaid: false}
+
+# Claim-checker cases: AI text that changes a fact must be rejected.
+checker:
+  facts: {numbers: ["1", "18", "24"], drugs: [spironolactone]}
+  must_reject:
+    - "หมอปรับยา สไปโรโนแลกโตน เป็น 2 เม็ด เช้า เริ่ม 18 ต.ค."
+    - "หมอปรับยา สไปโรโนแลกโตน เป็น 1 เม็ด และเพิ่มอีนาลาพริล"
+    - "หมอปรับยา สไปโรโนแลกโตน เป็น 1 เม็ด เริ่ม 19 ต.ค."
+    - "หมอปรับยา Bisoprolol 1 เม็ด"
+  must_accept:
+    - "หมอปรับยา สไปโรโนแลกโตน เป็น 1 เม็ด ตอนเช้า เริ่ม 18 ต.ค. ตรวจเลือด 24 ต.ค. ค่ะ"

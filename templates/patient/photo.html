@@ -1,0 +1,43 @@
+{% extends "patient/base.html" %}
+{% from "patient/_steps.html" import header %}
+{% block content %}{% set t = T() %}
+{{ header(p.id, "bp", "/p/" ~ p.id ~ "/bp") }}
+<h1 class="p-title">{{ t.photo_title }}</h1>
+<p class="p-sub photo-hint">{{ t.photo_hint }}</p>
+{% if error %}<div class="alert" role="alert">{{ error }}</div>{% endif %}
+
+<form id="photo-form" class="photo-input" method="post" action="/p/{{ p.id }}/bp/photo" enctype="multipart/form-data">
+  {# Live camera (needs HTTPS or localhost). camera.js shows it; without it the file buttons below still work. #}
+  <div class="cam" id="cam" hidden>
+    <div class="cam-view">
+      <video id="cam-video" playsinline webkit-playsinline muted autoplay disablepictureinpicture></video>
+      <img id="cam-shot" alt="" hidden>
+      <span class="cam-frame" aria-hidden="true"></span>
+      <span class="cam-tip">{{ t.cam_frame }}</span>
+    </div>
+    <div class="dock">
+      <button type="button" class="btn-big primary" id="cam-shoot">{{ icon("camera") }} {{ t.cam_shoot }}</button>
+      <div class="two" id="cam-after" hidden>
+        <button type="button" class="btn-big" id="cam-retake">{{ t.cam_retake }}</button>
+        <button type="submit" class="btn-big primary">{{ t.cam_use }}</button>
+      </div>
+    </div>
+  </div>
+  <p class="alert" id="cam-denied" hidden>{{ t.cam_denied }}</p>
+
+  <div class="photo-fallback" id="photo-fallback">
+    <label class="btn-big primary file-btn">{{ icon("camera") }} {{ t.cam_open }}
+      <input id="image" type="file" name="image" accept="image/*" capture="environment" required></label>
+    <label class="btn-big file-btn" hidden>{{ t.photo_pick }}<input id="image-pick" type="file" accept="image/*"></label>
+    <img id="pick-preview" class="pick-preview" alt="" hidden>
+    <button class="btn-big primary" type="submit" id="pick-send">{{ t.photo_send }}</button>
+  </div>
+</form>
+<a class="btn-big" href="/p/{{ p.id }}/bp/type">{{ t.confirm_type_instead }}</a>
+<div class="p-loading" id="photo-loading" role="status" aria-live="polite" hidden>
+  <span class="spinner" aria-hidden="true"></span>
+  <b>{{ t.photo_reading }}</b>
+  <span>{{ t.photo_reading_sub }}</span>
+</div>
+<script src="{{ asset('camera.js') }}"></script>
+{% endblock %}

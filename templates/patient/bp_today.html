@@ -1,0 +1,30 @@
+{% extends "patient/base.html" %}
+{% from "patient/_steps.html" import header %}
+{% block content %}{% set t = T() %}
+{{ header(p.id, "bp", "/p/" ~ p.id) }}
+<h1 class="p-title">{{ t.sent_title }}</h1>
+{% if saved %}<div class="task done"><b>{{ t.sent_saved }}</b></div>{% endif %}
+
+{% for r in sent.readings %}
+<section class="sent">
+  <div class="sent-top"><b>{{ t.time_fmt.format(t=r.at[11:16]) }}</b><span class="p-sub">{{ t.method_photo if r.method == "photo" else t.method_typed }}{% if r.edited %} · {{ t.sent_edited }}{% endif %}</span></div>
+  <div class="sent-nums">
+    <div><span>{{ t.type_top }}</span><b class="num">{{ r.sys }}</b></div>
+    <div><span>{{ t.type_bottom }}</span><b class="num">{{ r.dia }}</b></div>
+    <div><span>{{ t.type_pulse }}</span><b class="num">{{ r.pulse }}</b></div>
+  </div>
+  <a class="btn-big" href="/p/{{ p.id }}/bp/type?edit={{ r.id }}">{{ t.sent_edit }}</a>
+</section>
+{% endfor %}
+{% for x in sent.photos %}
+<section class="sent">
+  <div class="sent-top"><b>{{ t.time_fmt.format(t=x.at[11:16]) }}</b><span class="p-sub">{{ t.sent_photo }}</span></div>
+  <img class="pick-preview" src="/p/{{ p.id }}/upload/{{ x.file }}" alt="">
+  <a class="btn-big" href="/p/{{ p.id }}/bp/type">{{ t.confirm_type_instead }}</a>
+</section>
+{% endfor %}
+{% if not sent.readings and not sent.photos %}<p class="p-sub">{{ t.sent_none }}</p>{% endif %}
+
+<div class="dock"><a class="btn-big primary" href="{{ next_href }}">{{ t.sent_next if next_href != "/p/" ~ p.id else t.sent_home }}</a></div>
+<a class="btn-big" href="/p/{{ p.id }}/bp">{{ t.sent_add }}</a>
+{% endblock %}

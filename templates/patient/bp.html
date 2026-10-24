@@ -1,0 +1,19 @@
+{% extends "patient/base.html" %}
+{% from "patient/_steps.html" import header %}
+{% block content %}{% set t = T() %}
+{{ header(p.id, "bp", "/p/" ~ p.id) }}
+<h1 class="p-title sm">{{ t.bp_title }}</h1>
+{% if sent.readings or sent.photos %}<a class="task done sent-link" href="/p/{{ p.id }}/bp/today"><b>{{ t.bp_already }}</b><span>{{ t.bp_already_link }} →</span></a>{% endif %}
+
+<div class="card before">
+  <div class="card-top"><b>{{ t.bp_before }}</b>
+    <button type="button" class="btn-pill" data-timer="timer-out" data-done="{{ t.bp_timer_done }}">{{ icon("clock") }} {{ t.bp_timer_short }}</button></div>
+  <ol class="steps"><li>{{ t.bp_step1 }}</li><li>{{ t.bp_step2 }}</li><li>{{ t.bp_step3 }}</li></ol>
+  <div id="timer-out" class="timer" aria-live="polite"></div>
+</div>
+
+<b class="how">{{ t.bp_how }}</b>
+<a class="big primary" href="/p/{{ p.id }}/bp/photo">{{ icon("camera") }}<span>{{ t.bp_photo }}<small>{{ t.bp_photo_sub }}</small></span></a>
+<a class="big" href="/p/{{ p.id }}/bp/type">{{ icon("keypad") }}<span>{{ t.bp_type }}<small>{{ t.bp_type_sub }}</small></span></a>
+<p class="footnote">{{ t.bp_footer }}</p>
+{% endblock %}

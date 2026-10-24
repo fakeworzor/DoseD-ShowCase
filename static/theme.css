@@ -1,0 +1,77 @@
+/* Design tokens. Change colours, fonts and spacing here; every page reads these. */
+:root {
+  /* type: plain, serious faces with full Thai support */
+  --font-ui: "Noto Sans", "Noto Sans Thai", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-num: "Noto Sans", "Noto Sans Thai", system-ui, sans-serif;   /* numbers use tabular digits (.num), plain 0 */
+
+  /* neutrals (slight green-grey bias toward the accent) */
+  --bg: #EDF1F0;
+  --surface: #FFFFFF;
+  --surface-2: #F6F8F8;
+  --line: #E1E7E6;
+  --line-strong: #C8D1CF;
+  --ink: #15211F;
+  --muted: #5B6A67;
+
+  /* brand */
+  --accent: #0E6B5C;
+  --accent-hover: #0A5447;
+  --accent-soft: #E3F1EE;
+  --on-accent: #FFFFFF;
+
+  /* status: each has text + soft fill; told apart by icon and label too, not colour alone */
+  --red: #B42318;      --red-soft: #FDECEA;
+  --amber: #8A5300;    --amber-soft: #FFF2D9;
+  --blue: #1F4E99;     --blue-soft: #E7EEFA;
+  --green: #12663F;    --green-soft: #E4F3EA;
+  --grey: #4A5552;     --grey-soft: #ECEFEE;
+
+  /* drug classes: a small colour mark beside each drug so a pillar can be followed across visits */
+  --cls-bb: #3E6FD8;
+  --cls-rasi: #7B55C7;
+  --cls-arni: #7B55C7;
+  --cls-mra: #0F8577;
+  --cls-sglt2i: #C77420;
+
+  /* shape and space */
+  --radius-lg: 20px;
+  --radius: 14px;
+  --radius-sm: 10px;
+  --shadow: 0 1px 2px rgba(21, 33, 31, 0.04), 0 8px 24px rgba(21, 33, 31, 0.06);
+  --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px; --space-5: 24px; --space-6: 32px; --space-7: 48px;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--font-ui); line-height: 1.5; }
+a { color: var(--accent); }
+a:hover { color: var(--accent-hover); }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.num { font-family: var(--font-num); font-variant-numeric: tabular-nums lining-nums; }
+.muted { color: var(--muted); }
+[hidden] { display: none !important; }
+.visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+
+/* Patient app tokens. Look modelled on Thai public-health websites: navy strip, blue header band,
+   white page, grey cards, navy pill buttons, Prompt font. Doctor screens keep the tokens above. */
+body.patient {
+  --font-ui: "Prompt", "Noto Sans Thai", system-ui, -apple-system, sans-serif;
+  --font-num: "Prompt", system-ui, sans-serif;
+  --p-navy: #0B1452;      /* top strip, main buttons, footer */
+  --p-band: #4A7FD6;      /* header band */
+  --p-heading: #2F6FE0;   /* card titles, links */
+  --p-title: #404042;     /* page headings */
+  --p-card: #EEF1F6;      /* grey card */
+  --ink: #333336;
+  --muted: #696970;
+  --line: #E1E5EC;
+  --line-strong: #C9D0DC;
+  --surface: #FFFFFF;
+  --surface-2: #FFFFFF;
+  --accent: var(--p-navy);
+  --accent-hover: #1C2878;
+  --accent-soft: #E8EEFB;
+  --on-accent: #FFFFFF;
+  --shadow: 0 1px 2px rgba(11, 20, 82, 0.05), 0 6px 18px rgba(11, 20, 82, 0.08);
+}

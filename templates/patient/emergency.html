@@ -1,0 +1,10 @@
+{% extends "patient/base.html" %}
+{% block content %}{% set t = T() %}{% set n = S().app.emergency_number %}
+<section class="emergency" role="alert">
+  <span class="sos-ic">{{ icon("phone") }}</span>
+  <h1>{{ t.emergency_title }}</h1>
+  <p>{{ t.emergency_sub.format(number=n) }}</p>
+  <a class="em-call" href="tel:{{ n }}">{{ icon("phone") }} {{ t.emergency_call.format(number=n) }}</a>
+</section>
+<a class="btn-big" href="/p/{{ p.id }}">{{ t.done_home }}</a>
+{% endblock %}

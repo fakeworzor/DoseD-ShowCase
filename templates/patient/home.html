@@ -1,0 +1,67 @@
+{% extends "patient/base.html" %}
+{% from "patient/_steps.html" import bar %}
+{% block layout %}wide{% endblock %}
+{% block content %}{% set t = T() %}{% set n = steps|length %}{% set done_n = steps|selectattr("done")|list|length %}
+<div>
+  <h1 class="p-title">{{ t.hello.format(name=patient_name(p)) }}</h1>
+  <p class="p-sub">{{ day_label(today()) }}</p>
+</div>
+
+<div class="home">
+  <section class="today" aria-labelledby="today-h">
+    <div class="today-head">
+      <h2 id="today-h" class="p-section">{{ t.steps_title.format(n=n) }}</h2>
+      <span class="p-sub">{{ t.steps_count.format(done=done_n, n=n) }}</span>
+    </div>
+    {{ bar(steps) }}
+    {% if all_done %}<div class="task done"><b>{{ t.all_done_title }}</b><span>{{ t.all_done_sub }}</span></div>{% endif %}
+
+    <ol class="steps-list">
+    {% for s in steps %}
+      {% if s.state == "now" %}
+      <li class="step now">
+        <a class="step-card" href="{{ s.href }}">
+          <span class="tile-art"><img src="/static/illus/{{ s.art }}.svg" alt=""></span>
+          <span class="step-body">
+            <span class="step-label">{{ t.step_label.format(i=s.n, n=n) }}</span>
+            <b>{{ s.title }}</b>
+            <span class="p-sub">{{ s.sub }}</span>
+            <span class="btn-big primary">{{ t.step_start }} {{ icon("next") }}</span>
+          </span>
+        </a>
+      </li>
+      {% else %}
+      <li class="step {{ s.state }}">{% if s.done %}<a class="step-link" href="{{ s.review }}">{% endif %}
+        <span class="step-num">{% if s.done %}{{ icon("check") }}{% else %}{{ s.n }}{% endif %}</span>
+        <span><b>{{ s.title }}</b><span class="p-sub">{{ t.step_done_tap if s.done else t.step_next }}</span></span>
+        {% if s.done %}<span class="step-go" aria-hidden="true">{{ icon("next") }}</span></a>{% endif %}
+      </li>
+      {% endif %}
+    {% endfor %}
+    </ol>
+  </section>
+
+  <aside class="more">
+    <a class="sos" href="tel:{{ S().app.emergency_number }}">
+      <span class="sos-ic">{{ icon("phone") }}</span>
+      <span class="sos-txt"><b>{{ t.emergency_line1 }}</b><span>{{ t.emergency_line2.format(number=S().app.emergency_number) }}</span></span>
+      <span class="sos-call">{{ t.emergency_call.format(number=S().app.emergency_number) }}</span>
+    </a>
+    <h2 class="p-section">{{ t.more }}</h2>
+    <a class="more-link" href="/p/{{ p.id }}/meds">{{ icon("pill") }}<span>{{ t.btn_meds }}</span></a>
+    {% if S().app.nurse_phone %}<a class="more-link" href="tel:{{ S().app.nurse_phone }}">{% else %}<div class="more-link">{% endif %}
+      {{ icon("phone") }}<span>{{ t.nurse_question }}<small>{{ S().app.nurse_name }} · {{ S().app.nurse_hours }}</small></span>
+    {% if S().app.nurse_phone %}</a>{% else %}</div>{% endif %}
+  </aside>
+</div>
+
+{% if popup %}
+<dialog class="p-dialog" open data-auto aria-labelledby="done-h">
+  <span class="p-dialog-check">{{ icon("check") }}</span>
+  <h2 id="done-h">{{ t.popup_title }}</h2>
+  <p>{{ t.popup_sub.format(n=n) }}</p>
+  <p class="p-sub">{{ t.all_done_sub }}</p>
+  <form method="dialog"><button class="btn-big primary" type="submit" autofocus>{{ t.popup_ok }}</button></form>
+</dialog>
+{% endif %}
+{% endblock %}

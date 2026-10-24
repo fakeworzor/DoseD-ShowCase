@@ -1,0 +1,72 @@
+{% extends "doctor/base.html" %}
+{% block title %}{{ _("Titration queue") }}{% endblock %}
+{% block content %}
+<div>
+  <h1 class="page-title">{{ _("Titration queue") }}</h1>
+  <p class="page-sub">{{ _("Sorted by urgency, then days overdue. Every dose change is opened and signed one patient at a time.") }}</p>
+</div>
+
+<section class="kpis" aria-label="Today at a glance">
+  <a class="kpi red" href="/d?status=red_flag"><span class="label">{{ _("Red flags") }}</span><span class="value">{{ counts.red_flag }}</span><span class="hint">{{ _("Escalated to on-call") }}</span></a>
+  <a class="kpi amber" href="/d?status=hold"><span class="label">{{ _("On hold") }}</span><span class="value">{{ counts.hold }}</span><span class="hint">{{ _("A safety check stopped the step") }}</span></a>
+  <a class="kpi blue" href="/d?status=review"><span class="label">{{ _("Needs review") }}</span><span class="value">{{ counts.review }}</span><span class="hint">{{ _("Drug add or switch") }}</span></a>
+  <a class="kpi green" href="/d?status=ready"><span class="label">{{ _("Ready to sign") }}</span><span class="value">{{ counts.ready }}</span><span class="hint">{{ _("All checks pass") }}</span></a>
+  <a class="kpi" href="/d?status=waiting"><span class="label">{{ _("Waiting for data") }}</span><span class="value">{{ counts.waiting }}</span><span class="hint">{{ _("Readings or labs missing") }}</span></a>
+  <div class="kpi"><span class="label">{{ _("All 4 pillars at target") }}</span><span class="value">{{ at_target }}<span class="muted" style="font-size:18px"> / {{ all_cards|length }}</span></span><span class="hint">{{ _("Patients in the program") }}</span></div>
+</section>
+
+<div class="split">
+  <section class="wide">
+    <div class="section-head">
+      <h2>{% if status %}{{ _(STATUS_LABEL[status]) }}{% else %}{{ _("Patients") }}{% endif %}</h2>
+      {% if status %}<a class="label" href="/d">{{ _("View all") }}</a>{% endif %}
+    </div>
+    <div class="table-wrap">
+      <table class="list">
+        <thead><tr><th>{{ _("Patient") }}</th><th>{{ _("Status") }}</th><th>{{ _("Suggestion") }}</th><th>{{ _("Why it is here") }}</th><th>{{ _("Due") }}</th></tr></thead>
+        <tbody>
+        {% for c in cards %}{% set pr = c.prop.primary %}
+          <tr>
+            <td class="who" data-label="{{ _('Patient') }}"><a class="row-link" href="/d/patient/{{ c.p.id }}"><b>HN {{ c.p.id }}</b><span>{{ c.p.age }} {{ c.p.sex }} · EF {{ c.p.ef }}% · {{ c.p.coverage }}</span></a></td>
+            <td data-label="{{ _('Status') }}"><span class="pill {{ c.status }}">{{ _(c.label) }}</span></td>
+            <td data-label="{{ _('Suggestion') }}">
+              {% if c.status == "signed" %}<span class="muted">{{ _(c.signed.action|capitalize) }} · {{ c.signed.by }}</span>
+              {% elif pr %}<b>{% if pr.kind == "switch" %}{{ _("Switch") }} {{ drugs()[pr.replaces].name_en|lower }} → {{ drugs()[pr.drug].name_en|lower }}
+                {% elif pr.kind == "add" %}{{ _("Add") }} {{ drugs()[pr.drug].name_en|lower }} {{ pr.to|fmt }} mg
+                {% else %}{{ drugs()[pr.drug].name_en }} {{ pr.from|dose }} → {{ pr.to|dose }} mg{% endif %}</b>
+              {% elif c.status == "red_flag" %}{{ _("No dose change") }}
+              {% else %}<span class="muted">{{ _("None") }}</span>{% endif %}
+            </td>
+            <td data-label="{{ _('Why it is here') }}">
+              {% if c.status == "red_flag" %}{{ _("Patient wrote") }} “<span lang="th">{{ c.msg.text }}</span>”
+              {% elif c.status == "waiting" %}{{ c.prop.issues|join("; ") }}
+              {% elif c.guard %}{{ c.guard.text }}
+              {% elif c.prop.stops %}{% for s_ in c.prop.stops %}{{ _(s_.text) }}{{ "; " if not loop.last }}{% endfor %}
+              {% elif c.prop.warnings %}{{ _("Checks pass") }} · {% for w in c.prop.warnings %}{{ _(w.text) }}{{ "; " if not loop.last }}{% endfor %}
+              {% elif pr %}{{ _("All checks pass") }} · SBP {{ c.m.sbp_avg }} · HR {{ c.m.hr_avg }} · K+ {{ c.m.k|fmt }}
+              {% else %}{{ _("All pillars at target or nothing eligible") }}{% endif %}
+            </td>
+            <td class="num due" data-label="{{ _('Due') }}">{% if c.overdue_days > 0 %}{{ _("{n} d late").format(n=c.overdue_days) }}{% elif c.overdue_days == 0 %}{{ _("today") }}{% else %}{{ _("in {n} d").format(n=-c.overdue_days) }}{% endif %}</td>
+          </tr>
+        {% else %}
+          <tr><td colspan="5" class="empty">{{ _("No patients with this status.") }}</td></tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <aside class="narrow panel">
+    <div class="panel-head"><h2>{{ _("Pending actions") }}</h2><span class="muted">{{ _("{n} total").format(n=actions|length) }}</span></div>
+    {% if actions %}
+    <ul class="actions-list">
+      {% for a in actions %}
+      <li><span class="dot {{ a.kind }}" aria-hidden="true"></span>
+        <div><a class="row-link" href="/d/patient/{{ a.pid }}"><b>{{ a.title }}</b></a><div class="sub">{{ a.sub }}</div></div>
+        <span class="since">{{ a.since }}</span></li>
+      {% endfor %}
+    </ul>
+    {% else %}<p class="empty">{{ _("Nothing waiting.") }}</p>{% endif %}
+  </aside>
+</div>
+{% endblock %}

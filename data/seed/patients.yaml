@@ -1,0 +1,217 @@
+# SYNTHETIC demo patients. Not real people.
+# Each patient's status in the doctor queue is computed by the rules from this data, not set by hand.
+# Dates are relative to settings.app.demo_today (2026-10-17).
+# visits: past clinic or remote reviews (vitals at that review). Labs and dose changes are matched to them by date.
+
+- id: "0012"
+  name_th: สมชาย
+  name_en: Somchai
+  age: 66
+  sex: M
+  ef: 28
+  nyha: 1
+  diagnoses: [Ischaemic cardiomyopathy, Hypertension]
+  coverage: CSMBS
+  allergies: []
+  plan: {agreed: "2026-08-25", goal: "Reach target on all 4 pillars", preferences: ["Prefers fewer hospital trips", "Lives with wife, who helps with medicine"]}
+  meds:
+    - {drug: bisoprolol, dose: 10}
+    - {drug: enalapril, dose: 5}
+    - {drug: spironolactone, dose: 12.5}
+    - {drug: empagliflozin, dose: 10}
+    - {drug: furosemide, dose: 20}
+  visits:
+    - {date: "2026-08-25", kind: clinic, note: "post-discharge clinic", nyha: "II", symptoms: "DOE", weight: 68.2, sys: 122, dia: 76, hr: 88}
+    - {date: "2026-09-08", kind: remote, nyha: "II", weight: 67.9, sys: 116, dia: 72, hr: 80}
+    - {date: "2026-09-22", kind: remote, nyha: "I–II", weight: 67.6, sys: 112, dia: 70, hr: 74}
+    - {date: "2026-10-06", kind: remote, nyha: "I", weight: 67.7, sys: 108, dia: 68, hr: 66}
+  med_history:
+    - {date: "2026-10-06", drug: bisoprolol, from: 7.5, to: 10, by: remote}
+    - {date: "2026-09-22", drug: bisoprolol, from: 5, to: 7.5, by: remote}
+    - {date: "2026-09-08", drug: enalapril, from: 2.5, to: 5, by: remote}
+    - {date: "2026-08-25", drug: bisoprolol, from: 2.5, to: 5, by: clinic}
+  readings:
+    - {at: "2026-10-15 07:40", sys: 106, dia: 67, pulse: 62, weight: 67.6, method: photo}
+    - {at: "2026-10-15 07:42", sys: 104, dia: 66, pulse: 61, weight: null, method: photo}
+    - {at: "2026-10-16 07:35", sys: 103, dia: 65, pulse: 60, weight: 67.5, method: typed}
+    - {at: "2026-10-16 07:37", sys: 105, dia: 66, pulse: 62, weight: null, method: typed}
+    - {at: "2026-10-17 07:41", sys: 104, dia: 66, pulse: 61, weight: 67.5, method: photo}
+    - {at: "2026-10-17 07:43", sys: 102, dia: 65, pulse: 60, weight: null, method: photo}
+  labs:
+    - {date: "2026-08-25", k: 4.2, cr: 1.02}
+    - {date: "2026-09-08", k: 4.5, cr: 1.08}
+    - {date: "2026-09-22", k: 4.4, cr: 1.10}
+    - {date: "2026-10-06", k: 4.5, cr: 1.12}
+    - {date: "2026-10-16", k: 4.7, cr: 1.12}
+  pending_labs: []
+  messages:
+    - {at: "2026-10-17 07:44", from: patient, text: "วันนี้สบายดี ไม่เหนื่อย เดินได้ไกลขึ้น"}
+
+- id: "0019"
+  name_th: บุญมี
+  name_en: Boonmee
+  age: 72
+  sex: F
+  ef: 30
+  nyha: 2
+  diagnoses: [Dilated cardiomyopathy, Type 2 diabetes]
+  coverage: UCS
+  allergies: []
+  plan: {agreed: "2026-09-01", goal: "Reach target on all 4 pillars", preferences: ["Daughter fills in the app"]}
+  meds:
+    - {drug: bisoprolol, dose: 10}
+    - {drug: enalapril, dose: 5}
+    - {drug: spironolactone, dose: 25}
+    - {drug: empagliflozin, dose: 10}
+  visits:
+    - {date: "2026-09-01", kind: clinic, note: "clinic", nyha: "II", symptoms: "DOE", weight: 58.6, sys: 124, dia: 74, hr: 78}
+    - {date: "2026-09-15", kind: remote, nyha: "II", weight: 58.4, sys: 120, dia: 72, hr: 72}
+    - {date: "2026-10-02", kind: remote, nyha: "II", weight: 58.2, sys: 116, dia: 70, hr: 68}
+  med_history:
+    - {date: "2026-10-02", drug: bisoprolol, from: 7.5, to: 10, by: remote}
+    - {date: "2026-09-15", drug: spironolactone, from: 12.5, to: 25, by: remote}
+    - {date: "2026-09-01", drug: bisoprolol, from: 5, to: 7.5, by: clinic}
+  readings:
+    - {at: "2026-10-15 07:10", sys: 114, dia: 70, pulse: 66, weight: 58.1, method: typed}
+    - {at: "2026-10-16 07:05", sys: 111, dia: 68, pulse: 65, weight: 58.0, method: typed}
+    - {at: "2026-10-17 07:12", sys: 112, dia: 69, pulse: 67, weight: 58.0, method: photo}
+  labs:
+    - {date: "2026-09-01", k: 4.1, cr: 0.86}
+    - {date: "2026-09-29", k: 4.3, cr: 0.88}
+    - {date: "2026-10-14", k: 4.3, cr: 0.90}
+  pending_labs: []
+  messages:
+    - {at: "2026-10-17 07:20", from: caregiver, text: "แม่เวียนหัวตอนลุกจากเตียงตอนเช้า ต้องนั่งพักก่อนถึงจะเดินได้"}
+
+- id: "0040"
+  name_th: วันดี
+  name_en: Wandee
+  age: 63
+  sex: F
+  ef: 32
+  nyha: 2
+  diagnoses: [Ischaemic cardiomyopathy]
+  coverage: UCS
+  allergies: []
+  plan: {agreed: "2026-07-20", goal: "Reach target on all 4 pillars", preferences: ["Worried about medicine cost"]}
+  meds:
+    - {drug: bisoprolol, dose: 10}
+    - {drug: enalapril, dose: 20}
+    - {drug: spironolactone, dose: 50}
+    - {drug: empagliflozin, dose: 10}
+  visits:
+    - {date: "2026-07-20", kind: clinic, note: "clinic", nyha: "II", symptoms: "DOE on stairs", weight: 61.8, sys: 128, dia: 78, hr: 70}
+    - {date: "2026-09-28", kind: remote, nyha: "II", weight: 61.4, sys: 122, dia: 75, hr: 66}
+    - {date: "2026-10-12", kind: remote, nyha: "II", weight: 61.2, sys: 119, dia: 73, hr: 65}
+  med_history:
+    - {date: "2026-10-12", drug: spironolactone, from: 25, to: 50, by: remote}
+    - {date: "2026-09-28", drug: enalapril, from: 10, to: 20, by: remote}
+  readings:
+    - {at: "2026-10-15 08:00", sys: 120, dia: 74, pulse: 64, weight: 61.2, method: photo}
+    - {at: "2026-10-16 08:05", sys: 117, dia: 72, pulse: 63, weight: 61.0, method: photo}
+    - {at: "2026-10-17 07:58", sys: 118, dia: 73, pulse: 64, weight: 61.1, method: photo}
+  labs:
+    - {date: "2026-07-20", k: 4.0, cr: 0.80}
+    - {date: "2026-10-12", k: 4.3, cr: 0.84}
+    - {date: "2026-10-15", k: 4.4, cr: 0.85}
+  pending_labs: []
+  messages:
+    - {at: "2026-10-17 08:02", from: patient, text: "ยังเหนื่อยเวลาขึ้นบันได แต่ดีขึ้นกว่าเดือนก่อน"}
+
+- id: "0007"
+  name_th: ประเสริฐ
+  name_en: Prasert
+  age: 58
+  sex: M
+  ef: 35
+  nyha: 2
+  diagnoses: [Hypertensive heart disease]
+  coverage: SSS
+  allergies: []
+  plan: {agreed: "2026-09-10", goal: "Reach target on all 4 pillars", preferences: ["Works weekdays, prefers evening messages"]}
+  meds:
+    - {drug: bisoprolol, dose: 5}
+    - {drug: enalapril, dose: 10}
+    - {drug: spironolactone, dose: 25}
+    - {drug: empagliflozin, dose: 10}
+  visits:
+    - {date: "2026-09-10", kind: clinic, note: "clinic", nyha: "II", symptoms: "DOE", weight: 74.6, sys: 128, dia: 80, hr: 84}
+    - {date: "2026-10-01", kind: remote, nyha: "II", weight: 74.2, sys: 122, dia: 77, hr: 80}
+  med_history:
+    - {date: "2026-10-01", drug: enalapril, from: 5, to: 10, by: remote}
+    - {date: "2026-09-10", drug: bisoprolol, from: 2.5, to: 5, by: clinic}
+  readings:
+    - {at: "2026-10-15 19:30", sys: 120, dia: 76, pulse: 79, weight: 74.0, method: typed}
+    - {at: "2026-10-16 19:42", sys: 117, dia: 75, pulse: 77, weight: 74.1, method: typed}
+    - {at: "2026-10-17 06:55", sys: 118, dia: 74, pulse: 78, weight: 74.0, method: typed}
+  labs:
+    - {date: "2026-09-10", k: 4.2, cr: 1.00}
+    - {date: "2026-10-08", k: 4.3, cr: 1.02}
+  pending_labs: []
+  messages:
+    - {at: "2026-10-16 19:45", from: patient, text: "ปกติดีครับ ไม่มีอาการอะไร"}
+
+- id: "0024"
+  name_th: สมศักดิ์
+  name_en: Somsak
+  age: 69
+  sex: M
+  ef: 22
+  nyha: 2
+  diagnoses: [Ischaemic cardiomyopathy, CKD stage 3a]
+  coverage: CSMBS
+  allergies: []
+  plan: {agreed: "2026-09-05", goal: "Reach target on all 4 pillars", preferences: []}
+  meds:
+    - {drug: bisoprolol, dose: 5}
+    - {drug: enalapril, dose: 5}
+    - {drug: spironolactone, dose: 12.5}
+    - {drug: dapagliflozin, dose: 10}
+  visits:
+    - {date: "2026-09-05", kind: clinic, note: "clinic", nyha: "II", symptoms: "DOE", weight: 70.8, sys: 124, dia: 74, hr: 76}
+    - {date: "2026-09-19", kind: remote, nyha: "II", weight: 70.5, sys: 118, dia: 71, hr: 73}
+  med_history:
+    - {date: "2026-09-19", drug: enalapril, from: 2.5, to: 5, by: remote}
+  readings:
+    - {at: "2026-10-15 07:00", sys: 116, dia: 70, pulse: 72, weight: 70.3, method: photo}
+    - {at: "2026-10-16 07:02", sys: 115, dia: 71, pulse: 71, weight: 70.4, method: photo}
+    - {at: "2026-10-17 07:05", sys: 117, dia: 70, pulse: 72, weight: 70.3, method: photo}
+  labs:
+    - {date: "2026-09-05", k: 4.6, cr: 1.40}
+    - {date: "2026-09-28", k: 4.7, cr: 1.45}
+  pending_labs:
+    - {test: "K+ and creatinine", ordered: "2026-10-15"}
+  messages: []
+
+- id: "0031"
+  name_th: ลำดวน
+  name_en: Lamduan
+  age: 71
+  sex: F
+  ef: 25
+  nyha: 3
+  diagnoses: [Ischaemic cardiomyopathy, Atrial fibrillation]
+  coverage: UCS
+  allergies: [Penicillin]
+  plan: {agreed: "2026-09-20", goal: "Reach target on all 4 pillars", preferences: ["Lives alone, neighbour checks daily"]}
+  meds:
+    - {drug: bisoprolol, dose: 2.5}
+    - {drug: enalapril, dose: 2.5}
+    - {drug: spironolactone, dose: 12.5}
+    - {drug: empagliflozin, dose: 10}
+    - {drug: furosemide, dose: 40}
+  visits:
+    - {date: "2026-09-20", kind: clinic, note: "clinic", nyha: "III", symptoms: "DOE, ankle swelling", weight: 55.2, sys: 112, dia: 68, hr: 92}
+    - {date: "2026-10-04", kind: remote, nyha: "II–III", weight: 54.9, sys: 110, dia: 68, hr: 86}
+  med_history:
+    - {date: "2026-10-04", drug: bisoprolol, from: 1.25, to: 2.5, by: remote}
+  readings:
+    - {at: "2026-10-14 08:10", sys: 108, dia: 66, pulse: 84, weight: 55.0, method: typed}
+    - {at: "2026-10-15 08:12", sys: 110, dia: 68, pulse: 88, weight: 55.6, method: typed}
+    - {at: "2026-10-16 08:05", sys: 106, dia: 66, pulse: 90, weight: 56.2, method: typed}
+    - {at: "2026-10-17 06:20", sys: 104, dia: 64, pulse: 96, weight: 56.8, method: typed}
+  labs:
+    - {date: "2026-10-10", k: 4.4, cr: 1.05}
+  pending_labs: []
+  messages:
+    - {at: "2026-10-17 06:25", from: patient, text: "เมื่อคืนนอนราบไม่ได้ หายใจไม่อิ่ม ต้องลุกนั่งทั้งคืน"}

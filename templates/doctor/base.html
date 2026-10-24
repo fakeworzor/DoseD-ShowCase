@@ -1,0 +1,50 @@
+{% from "icons.html" import icon %}<!doctype html>
+<html lang="{{ lang() }}">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}{{ S().app.name }}{% endblock %} · {{ S().app.name }}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700&family=Noto+Sans+Thai:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="{{ asset('theme.css') }}">
+<link rel="stylesheet" href="{{ asset('doctor.css') }}">
+</head>
+<body class="doctor {% block body_class %}{% endblock %}">
+<div class="shell">
+  {% block side %}<aside class="side">
+    <a class="brand" href="/d"><span class="brand-mark">{{ icon("heart") }}</span>{{ S().app.name }}</a>
+    <nav class="nav-group nav" aria-label="Main">
+      <div class="nav-label">{{ _("Overview") }}</div>
+      <a href="/d" {% if nav == "queue" %}aria-current="page"{% endif %}>{{ icon("queue") }} {{ _("Titration queue") }}</a>
+      <a href="/d?status=red_flag">{{ icon("flag") }} {{ _("Red flags") }} {% if counts.red_flag %}<span class="count">{{ counts.red_flag }}</span>{% endif %}</a>
+    </nav>
+    <nav class="nav-group nav" aria-label="Safety">
+      <div class="nav-label">{{ _("Safety") }}</div>
+      <a href="/d/trust" {% if nav == "trust" %}aria-current="page"{% endif %}>{{ icon("shield") }} {{ _("Trust numbers") }}</a>
+      <a href="/d/audit" {% if nav == "audit" %}aria-current="page"{% endif %}>{{ icon("log") }} {{ _("Audit log") }}</a>
+    </nav>
+    <nav class="nav-group nav" aria-label="Demo">
+      <div class="nav-label">{{ _("Demo") }}</div>
+      <a href="/p" target="_blank" rel="noopener">{{ icon("user") }} {{ _("Open patient app") }}</a>
+      <form method="post" action="/d/reset"><button type="submit">{{ icon("reset") }} {{ _("Reset demo data") }}</button></form>
+    </nav>
+    <div class="side-foot">
+      <span>{{ _("Rules") }} {{ RULES().version }} · {{ _("synthetic data") }}</span>
+      <span>AI: {{ _("on") ~ " (" ~ S().llm.model ~ ")" if ai_on() else _("off, keyword safety net only") }}</span>
+      <span>{{ _("BP photos") }}: {{ photo_reader()|capitalize if photo_reader() else _("off (no key)") }}</span>
+      <span>{{ _("Similar patients") }}: {{ S().store.backend }}</span>
+    </div>
+  </aside>{% endblock %}
+  <div class="main">
+    <header class="topbar">
+      {% block context %}<span class="context">{{ _(S().app.clinic) }} · {{ S().app.doctor_name }} · {{ today().strftime("%a %d %b %Y") }}</span>{% endblock %}
+      <span class="top-actions"><a class="btn lang-switch" href="/lang/d/{{ 'th' if lang() == 'en' else 'en' }}?to={{ request.url.path|urlencode }}" lang="{{ 'th' if lang() == 'en' else 'en' }}">{{ "ไทย" if lang() == "en" else "EN" }}</a>{% block top_action %}<a class="btn btn-primary" href="/p" target="_blank" rel="noopener">{{ _("Open patient app") }}</a>{% endblock %}</span>
+    </header>
+    <main class="content">
+      {% block content %}{% endblock %}
+    </main>
+  </div>
+</div>
+<script src="{{ asset('app.js') }}"></script>
+</body>
+</html>

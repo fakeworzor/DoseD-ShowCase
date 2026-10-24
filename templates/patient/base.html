@@ -1,0 +1,47 @@
+{% from "icons.html" import icon %}{% set t = T() %}<!doctype html>
+<html lang="{{ lang() }}">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>{{ S().app.name }}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;500;600&family=Noto+Sans+Thai:wght@400;600&display=swap">
+<link rel="stylesheet" href="{{ asset('theme.css') }}">
+<link rel="stylesheet" href="{{ asset('patient.css') }}">
+{% if S().line.liff_id %}<script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>{% endif %}
+</head>
+<body class="patient" data-liff="{{ S().line.liff_id }}">
+<header>
+  <div class="p-strip"><div class="p-wrap">
+    <span>{{ S().app.hospital }}</span>
+    <div class="size-btns">
+      <a class="lang-btn" href="/lang/p/{{ 'en' if lang() == 'th' else 'th' }}?to={{ request.url.path|urlencode }}" lang="{{ 'en' if lang() == 'th' else 'th' }}">{{ "EN" if lang() == "th" else "ไทย" }}</a>
+      <button type="button" data-scale="-0.1" aria-label="{{ t.text_smaller }}">ก-</button>
+      <button type="button" data-scale="0.1" aria-label="{{ t.text_bigger }}">ก+</button>
+    </div>
+  </div></div>
+  <div class="p-band"><div class="p-wrap">
+    <a class="p-logo" href="/p/{{ p.id }}"><img src="/static/illus/logo.svg" alt=""><span><b>{{ S().app.name }}</b><small>{{ t.tagline }}</small></span></a>
+    <details class="p-menu">
+      <summary aria-label="{{ t.menu }}"><span></span><span></span><span></span></summary>
+      <nav>
+        <a href="/p/{{ p.id }}">{{ t.menu_home }}</a>
+        <a href="/p/{{ p.id }}/bp">{{ t.btn_bp }}</a>
+        <a href="/p/{{ p.id }}/meds">{{ t.btn_meds }}</a>
+        {% if S().app.nurse_phone %}<a href="tel:{{ S().app.nurse_phone }}">{{ t.btn_nurse }}</a>{% endif %}
+        <form method="post" action="/p/{{ p.id }}/reset" class="menu-reset" data-confirm="{{ t.menu_reset_confirm }}">
+          <button type="submit">{{ icon("reset") }} {{ t.menu_reset }}</button></form>
+      </nav>
+    </details>
+  </div></div>
+</header>
+<main class="phone {% block layout %}{% endblock %}">
+{% block content %}{% endblock %}
+</main>
+<footer class="p-foot"><div class="p-wrap">
+  <b>{{ S().app.hospital }}</b>
+  <span>{{ t.privacy }}</span>
+</div></footer>
+<script src="{{ asset('app.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,11 @@
+{% extends "patient/base.html" %}
+{% from "patient/_steps.html" import header %}
+{% block content %}{% set t = T() %}
+{{ header(p.id, "bp", "/p/" ~ p.id ~ "/bp/photo") }}
+<h1 class="p-title">{{ t.photo_unread_title }}</h1>
+<div class="alert" role="alert">{{ t.photo_unread_sub }}</div>
+<img class="pick-preview" src="/p/{{ p.id }}/upload/{{ d.photo }}" alt="">
+<form class="dock" method="post" action="/p/{{ p.id }}/bp/photo/send"><button class="btn-big primary" type="submit">{{ t.photo_unread_send }}</button></form>
+<a class="btn-big" href="/p/{{ p.id }}/bp/photo">{{ t.cam_retake }}</a>
+<a class="btn-big" href="/p/{{ p.id }}/bp/type">{{ t.confirm_type_instead }}</a>
+{% endblock %}
